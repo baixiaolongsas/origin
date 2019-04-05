@@ -1,0 +1,15 @@
+/data/dc/*
+/data/derived/*
+/data/edc/*
+/data/raw/*
+!/data/dc/null
+!/data/derived/null
+!/data/edc/null
+!/data/raw/null
+
+/output/*
+!/output/null
+
+*.doc
+*.docx
+*.pdf
