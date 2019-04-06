@@ -71,7 +71,8 @@ end;
 run;
 
 proc sql;
-        create table listing as select memname as sn 'Sn',memlabel as contents 'Contents',crdate 'Create Time' from dictionary.tables where libname eq "OUT" and memlabel ne "";
+        create table listing as select memname as sn 'Sn',memlabel as contents 'Contents',crdate 'Create Time',input(compress(memname,'0123456789','k'),best.) as sn1 
+        from dictionary.tables where libname eq "OUT" and memlabel ne "" order by sn1;
 		select count(*) into:N from listing;
     
 quit;
