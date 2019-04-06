@@ -1,8 +1,8 @@
 /*soh**********************************************************************************
 CODE NAME                 : <init.sas>
-CODE TYPE                 : <dc >
+CODE TYPE                 : < >
 DESCRIPTION               : <初始化试验数据> 
-SOFTWARE/VERSION#         : <SAS 9.3>
+SOFTWARE/VERSION#         : <SAS 9.4>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
@@ -14,11 +14,11 @@ ASSUMPTIONS               : <	>
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 REVISION HISTORY SECTION:
- Author & weix
+ Author & weixin
 	
 Ver# Peer Reviewer        Code History Description
 ---- ----------------     ------------------------------------------------
-01		Weixin				2016-8-2
+01		baixiaolong		  2019-4-6
 --------------------------------------------------------------------------;*/
 
 %global study root ;
