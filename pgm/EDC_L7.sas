@@ -134,3 +134,6 @@ LEFT JOIN EDC.zynumview zynum on zxlsb.zxbhzd=zynum.siteid and zynum.zynum >0
 LEFT JOIN EDC.pisubjview pisubjview on zxlsb.zxbhzd=pisubjview.siteid and pisubjview.pis >0 
  ORDER BY zxlsb.zxbhzd;
 quit;
+
+
+data out.l1; set EDC.EDC_metrics; run;

@@ -276,3 +276,5 @@ group by siteid;
 
 quit;
 
+
+data out.l5; set edc.visitmiss; run;

@@ -152,3 +152,5 @@ proc sql;
 	create table EDC.zsview as select a.*,coalesce(left(compress(put(b.zs1,best.),'.')),'0') as zs1 'Î´Ìá½»Ò³Êý' from zsview as a left join zsview1 as b on a.siteid=b.siteid;
 quit;
 
+
+data out.l7; set  EDC.unsub; run;

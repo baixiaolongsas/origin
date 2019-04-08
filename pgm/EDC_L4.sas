@@ -161,3 +161,6 @@ select qscrfview.siteid as siteid,
 count(*) as qscrf 'Ò³ÃæÈ±Ê§Êý' from edc.crfmiss qscrfview group by qscrfview.siteid
 ;
 quit;
+
+
+data out.l3; set edc.crfmiss; run;
