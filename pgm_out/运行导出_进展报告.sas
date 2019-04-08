@@ -1,8 +1,8 @@
 /*soh**********************************************************************************
-CODE NAME                 : <L_>
+CODE NAME                 : <运行导出>
 CODE TYPE                 : <listing >
 DESCRIPTION               : <> 
-SOFTWARE/VERSION#         : <SAS 9.3>
+SOFTWARE/VERSION#         : <SAS 9.4>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
@@ -14,41 +14,24 @@ ASSUMPTIONS               : <	>
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 REVISION HISTORY SECTION:
- Author & weix
+ Author & baixiaolong
 	
 Ver# Peer Reviewer        Code History Description
 ---- ----------------     ------------------------------------------------
-01		Weixin				2017-4-27
+01		
 **eoh**********************************************************************************/;
 dm log 'clear';
 proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
 
-/*value $f1_fmt '1'='未处理' '2'='已处理' '3'='已关闭';*/
-/*dm log 'clear';*/
+%include '..\pgm\EDC_L1.sas';
+%include '..\pgm\EDC_L2.sas';
+%include '..\pgm\EDC_L3.sas';
+%include '..\pgm\EDC_L4.sas';
+%include '..\pgm\EDC_L5.sas';
+%include '..\pgm\EDC_L6.sas';
+%include '..\pgm\EDC_L7.sas';
+%include '..\pgm\EDC_L8.sas';
 
 
-proc sql;
-create table EDC.zyb_un as
-select * from EDC.zyb where zt ='1' ;
-;
-
-
-create table EDC.zyb_rep as
-select * from EDC.zyb
-where zt ='2' 
-;
-
-
-
-quit;
-
-
-data out.l8; set EDC.zyb_un(label='未回复质疑'); run;
-data out.l9; set EDC.zyb_rep(label='已回复未确认质疑'); run;
-
-
-
-
-
-
+%m_exportxlsx(title=进展报告,creator=白小龙);

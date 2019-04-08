@@ -136,4 +136,4 @@ LEFT JOIN EDC.pisubjview pisubjview on zxlsb.zxbhzd=pisubjview.siteid and pisubj
 quit;
 
 
-data out.l1; set EDC.EDC_metrics; run;
+data out.l1; set EDC.EDC_metrics(label='EDC进展报告'); run;

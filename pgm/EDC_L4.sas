@@ -163,4 +163,4 @@ count(*) as qscrf '页面缺失数' from edc.crfmiss qscrfview group by qscrfview.sit
 quit;
 
 
-data out.l3; set edc.crfmiss; run;
+data out.l3; set edc.crfmiss(label='页面缺失汇总'); run;
