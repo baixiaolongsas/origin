@@ -81,6 +81,7 @@ data _null_;
   pattern=prxparse("/SAS_\S(\S{10})\b/o");
   position=prxmatch(pattern,fname);
   if position ne 0 then date1=prxposn(pattern,1,fname);
+/*  date2=input(date1,yymmdd8.);*/
   date2=input(date1,yymmdd10.);
   date3=put(date2,yymmdd10.);
   if _n_=1 then call symputx ("rawdate",date3,global);
