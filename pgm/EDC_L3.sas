@@ -168,5 +168,13 @@ data edc.unsdv_MED;
 	drop x length WARNING creator createtime modify ;
 run;
 
-data out.l6(label='MED未核查页明细'); set edc.unsdv_MED; run;
 
+
+proc sql;
+	create table EDC.mednumview as select siteid,(sum(input(hchzb.xhczdzsls,best.))-sum(input(hchzb.yhczdsls,best.))) as mednum 'MED未核查字段数',sum(input(hchzb.xhczdzsls,best.)) as medznum 'MED需核查字段数',
+	round(sum( input(hchzb.xhczdzsls,best.)-input(hchzb.yhczdsls,best.))/sum(input(hchzb.xhczdzsls,best.))*100,0.0001) as medrate 'MED未核查百分率(%)' from EDC.hchzb 
+	left join EDC.spjlb spjlb on spjlb.jl=COALESCE(hchzb.ejzbfjl,hchzb.jl,) and spjlb.dqzt NE '00'  
+	left join DERIVED.subject subject on subject.pub_rid=COALESCE(hchzb.fzbdrkbjl,hchzb.jl) where dqzt is not null and subject.siteid is not null 
+	 group by subject.siteid ;
+quit;
+data out.l6(label='MED未核查页明细'); set edc.unsdv_MED; run;

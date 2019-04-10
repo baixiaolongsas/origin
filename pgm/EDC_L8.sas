@@ -43,9 +43,10 @@ where zt ='2'
 
 quit;
 
+data out.l7(label='未回复质疑'); set EDC.zyb_un; run;
+data out.l8(label='已回复未确认质疑'); set EDC.zyb_rep; run;
 
-data out.l8(label='未回复质疑'); set EDC.zyb_un; run;
-data out.l9(label='已回复未确认质疑'); set EDC.zyb_rep; run;
+
 
 
 

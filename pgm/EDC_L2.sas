@@ -1,8 +1,8 @@
 /*soh**********************************************************************************
-CODE NAME                 : <edc.l2>
-CODE TYPE                 : <>
-DESCRIPTION               : <DM未核查页明细> 
-SOFTWARE/VERSION#         : <SAS 9.4>
+CODE NAME                 : <alltoexcel.sas>
+CODE TYPE                 : <SHR_1210 >
+DESCRIPTION               : <数据导出> 
+SOFTWARE/VERSION#         : <SAS 9.3>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
@@ -127,7 +127,7 @@ data final_final;
 run;
 
 data final;
-	retain COL6 COL7 COL8 COL2 COL5   COL9 COL10 COL11 yhczdsly xhczdzsl COL14 COL16 COL17 COL18 WARNING ;
+	retain COL6 COL7 COL8 COL2 COL5   COL9 COL10 COL11 yhczdsle xhczdzsle COL14 COL16 COL17 COL18 WARNING ;
 	set final_final;
 	rename COL2=tid col5=lockstat col6=sitename col7=siteid col8=subjid col9=visit col10=visitnum col11=svnum col14=creator col16=createtime col17=modify col18=modifytime;
 	WARNING='后面内容为CRF记录具体信息';
@@ -168,4 +168,15 @@ data edc.unsdv_DM;
 	drop x length WARNING creator createtime modify ;
 run;
 
+
+proc sql;
+	create table EDC.dmnumview as select siteid,(sum(input(hchzb.xhczdzsle,best.))-sum(input(hchzb.yhczdsle,best.))) as dmnum 'DM未核查字段数',sum(input(hchzb.xhczdzsle,best.)) as dmznum 'DM需核查字段数',
+	round(sum( input(hchzb.xhczdzsle,best.)-input(hchzb.yhczdsle,best.))/sum(input(hchzb.xhczdzsle,best.))*100,0.0001) as dmrate 'DM未核查百分率(%)' from EDC.hchzb 
+	left join EDC.spjlb spjlb on spjlb.jl=COALESCE(hchzb.ejzbfjl,hchzb.jl,) and spjlb.dqzt NE '00'  
+	left join DERIVED.subject subject on subject.pub_rid=COALESCE(hchzb.fzbdrkbjl,hchzb.jl) where dqzt is not null and subject.siteid is not null 
+	 group by subject.siteid ;
+quit;
+
+
 data out.l5(label='DM未核查页明细'); set edc.unsdv_DM; run;
+

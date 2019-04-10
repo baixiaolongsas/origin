@@ -1,5 +1,5 @@
  /*soh**********************************************************************************
-CODE NAME                 : <未提交>
+CODE NAME                 : <未锁定>
 CODE TYPE                 : <dc >
 DESCRIPTION               : <进展报告未提交页面> 
 SOFTWARE/VERSION#         : <SAS 9.4>
@@ -107,9 +107,6 @@ data selected;
 	if ^b;
 run;
 
-data EDC.selected;
-  set selected;
-run;
 
 proc sql;
 	create table zsview as select siteid,count(pub_rid) as zs '总记录页数' from selected group by siteid;
@@ -133,7 +130,7 @@ run;
 proc datasets lib=work ;delete dat_:;run;
 proc sort data=sn ;by pub_rid;run;
 proc sort data=dat ;by pub_rid;run;
-proc sort data=selected out=selected(where=(lockstat='未提交'));by pub_rid;run;
+proc sort data=selected out=selected(where=(lockstat='未锁定'));by pub_rid;run;
 
 proc sql;
 	create table prefinal as select a.*,b.sn,c.dat,d.status,e.icfdat from selected as a 
@@ -143,7 +140,7 @@ proc sql;
 left join derived.dm as e on a.subjid=e.subjid;
 quit;
 
-data EDC.unsub;
+data EDC.unsub1;
 	retain studyid siteid subjid status icfdat visit pub_tname    sn  dat lockstat lastmodifytime;
 	set prefinal;
 	keep studyid siteid subjid status icfdat visit pub_tname    sn  dat lockstat lastmodifytime;
@@ -152,9 +149,7 @@ run;
 
 
 proc sql;
-	create table zsview1 as select siteid,count(pub_rid) as zs1 '未提交页数' from prefinal group by siteid;
-	create table EDC.zsview as select a.*,coalesce(left(compress(put(b.zs1,best.),'.')),'0') as zs1 '未提交页数' from zsview as a left join zsview1 as b on a.siteid=b.siteid;
+	create table zsview1 as select siteid,count(pub_rid) as zs1 '未锁定页数' from prefinal group by siteid;
+	create table EDC.zsview11 as select a.*,coalesce(left(compress(put(b.zs1,best.),'.')),'0') as zs1 '未锁定页数' from zsview as a left join zsview1 as b on a.siteid=b.siteid;
 quit;
 
-
-data out.l6(label='未提交页面汇总'); set  EDC.unsub; run;
