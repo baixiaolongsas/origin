@@ -2,7 +2,7 @@
 CODE NAME                 : <alltoexcel.sas>
 CODE TYPE                 : <SHR_1210 >
 DESCRIPTION               : <数据导出> 
-SOFTWARE/VERSION#         : <SAS 9.4>
+SOFTWARE/VERSION#         : <SAS 9.3>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
@@ -169,14 +169,13 @@ data edc.unsdv_cra;
 run;
 
 
-
 proc sql;
-	create table EDC.sdvnumview as select siteid,(sum(input(hchzb.xhczdzsl,best.))-sum(input(hchzb.yhczdsly,best.))) as sdvnum '未SDV字段数',sum(input(hchzb.xhczdzsl,best.)) as sdvznum '需SDV字段数',
+	create table EDC.sdvnumview as select hchzb.siteid,(sum(input(hchzb.xhczdzsl,best.))-sum(input(hchzb.yhczdsly,best.))) as sdvnum '未SDV字段数',sum(input(hchzb.xhczdzsl,best.)) as sdvznum '需SDV字段数',
 	round(sum( input(hchzb.xhczdzsl,best.)-input(hchzb.yhczdsly,best.))/sum(input(hchzb.xhczdzsl,best.))*100,0.0001) as sdvrate '未SDV百分率(%)' from EDC.hchzb 
 	left join EDC.spjlb spjlb on spjlb.jl=COALESCE(hchzb.ejzbfjl,hchzb.jl,) and spjlb.dqzt NE '00'  
 	left join DERIVED.subject subject on subject.pub_rid=COALESCE(hchzb.fzbdrkbjl,hchzb.jl) where dqzt is not null and subject.siteid is not null 
 	 group by subject.siteid ;
 quit;
 
-data out.l4; set edc.unsdv_cra(label='CRA未核查页明细'); run;
 
+data out.l4(label='CRA未核查页明细'); set edc.unsdv_cra; run;

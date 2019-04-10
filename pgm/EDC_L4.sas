@@ -30,14 +30,9 @@ proc datasets lib=work nolist kill; run;
 %let visit=visit;/*访视阶段的变量名，是否有的项目的该变量名为svstage？*/
 %let visitnum=visitnum; /*访视序号的变量名，是否有的项目的该变量名为其他的？*/
 %let visdat=visdat;/*访视日期的变量名，是否有的项目叫svstdat？*/
-%let specialvisit='生存随访','C8后访视';
-%let ds1=ds1;/*治疗结束页名称，是否有项目会有多个治疗结束页，需要确定用哪个*/
-%let novisdat='共同页','计划外访视'; /*有的项目不统计计划外*/
-
-
-
-
-
+%let specialvisit='计划外访视';
+%let ds1=eot;/*治疗结束页名称，是否有项目会有多个治疗结束页，需要确定用哪个*/
+%let novisdat='共同页'; /*有的项目不统计计划外*/
 
 
 
@@ -94,6 +89,7 @@ data sub_uncollect;
 	if ^b;
 
 run;
+
 /*连接试验数据治疗结束页，已判断是否治疗完成*/
 data ds1;
 	set derived.&ds1.(keep=subjid  pub_tid);
@@ -108,6 +104,7 @@ quit;
 
 /*区分有访视日期的，与无访视日期的访视*/
 data prefinal1 prefinal_1;
+/*	set sub_ds1;*/
 	set sub_ds1;
 	if visitname in (&novisdat.) then output prefinal1;
 	else if visitname not in (&novisdat.) and &visdat. ne '' then  output prefinal_1;
@@ -143,24 +140,65 @@ data prefinal_4;
 	if today()-input(&visdat.,yymmdd10.)>15 or visdat_ ne '';
 run;
 
-data edc.crfmiss;
+/*第四周首次给药日期-给药记录页面缺失*/
+data exd;
+  set derived.ex(where=(exstdat ne ''));
+keep subjid extrt;
+run;
+
+proc sort data=exd nodupkeys;by subjid extrt;run;
+
+proc transpose data=exd out=exd1(drop=_LABEL_ _NAME_) prefix=sn;
+by subjid;
+var extrt;
+run;
+
+
+proc sql;
+create table fdd1 as select
+a.subjid,a.visit as visitname,c.status,a.studyid,a.siteid,input(a.visitnum,best.) as visitnum,a.fdat,b.sn1,b.sn2
+from derived.fdd as a left join exd1 as b on a.subjid=b.subjid
+   left join derived.subject as c on a.subjid=c.subjid;
+quit;
+
+data fdd2;
+  set fdd1;
+  length dmname $500;
+  if sn1 eq '' then dmname='fdd已填写-给药记录HS-10234/HS-10234模拟剂缺失';
+  if sn2 eq '' then dmname='fdd已填写-给药记录TDF片/TDF模拟剂缺失';
+  if sn1 eq '' and sn2 eq '' then dmname='fdd已填写-给药记录两种药物都缺失';
+  keep studyid siteid subjid status visitname visitnum dmname; 
+run;
+
+data fdd2;
+  set fdd2;
+  if dmname ne '';
+run;
+
+data edc.crfmiss1;
 	retain studyid siteid subjid status visitname visitnum dmname &visdat. day;
 	set prefinal3 prefinal_4;
 	if ^missing(&visdat.)  then 
-	day=today()-input(&visdat.,yymmdd10.);
+	day=today()-input(&visdat.,yymmdd10.)-15;
 	visitnum=input(visitid,best.);
 	keep studyid siteid subjid status visitname visitnum dmname &visdat. day;
-	label day ='页面缺失据今天数';
+	label day ='页面缺失距今天数';
 run;
-proc sort data=edc.crfmiss;by subjid visitnum;run;
+proc sort data=edc.crfmiss1;by subjid visitnum;run;
 
+data edc.crfmiss;
+  set edc.crfmiss1 fdd2;
+run;
+
+proc sort data=edc.crfmiss;by subjid visitnum;run;
 
 proc sql;
 create table edc.qscrfview as
 select qscrfview.siteid as siteid,
-count(*) as qscrf '页面缺失数' from edc.crfmiss qscrfview group by qscrfview.siteid
+count(*) as qscrf '页面缺失数' from edc.crfmiss1 qscrfview group by qscrfview.siteid
 ;
 quit;
 
 
-data out.l3; set edc.crfmiss(label='页面缺失汇总'); run;
+
+data out.l3(label='页面缺失汇总'); set edc.crfmiss; run;

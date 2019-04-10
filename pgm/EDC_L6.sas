@@ -53,7 +53,7 @@ proc sql;
 			into 
 			:varnames separated by ','
 				 from DICTIONARY.COLUMNS
-          where libname = "DERIVED" and memname="&DNAME" and label in ('项目代码','研究中心编号','受试者代码','访视','CRF状态','修改时间','记录ID','表名称');
+          where libname = "DERIVED" and memname="&DNAME" and label in ('项目代码','研究中心编号','受试者代码','访视名称','访视','CRF状态','修改时间','记录ID','表名称');
 		  create table pre_&DNAME as select &varnames from derived.&DNAME;
 		  
 		  select name,name||"=var"||left(put(varnum,best.))
@@ -88,6 +88,27 @@ proc sql;
 
 %get_unsub_pre;
 
+proc sql;
+  create table pre_lb1 as select
+a.*,b.lbcat
+from pre_lb as a left join derived.lb as b on a.subjid=b.subjid and a.pub_rid=b.pub_rid;quit;
+
+proc datasets lib=work ;delete pre_lb;run;
+
+proc sql;
+create table pre_lb_detail1 as select
+a.*,b.lbcat
+from pre_lb_detail as a left join derived.lb_detail as b on a.subjid=b.subjid and a.pub_rid=b.pub_rid;quit;
+
+proc datasets lib=work ;delete pre_lb_detail;run;
+
+proc sql;
+create table pre_hbv1 as select
+a.*,b.hbvcat
+from pre_hbv as a left join derived.hbv as b on a.subjid=b.subjid and a.pub_rid=b.pub_rid;quit;
+
+proc datasets lib=work ;delete pre_hbv;run;
+
 data pre;
 	set pre_:;
 run;
@@ -119,6 +140,8 @@ data sn;
 	drop var: x ;
 run;
 proc datasets lib=work ;delete sn_:;run;
+
+
 data dat;
 	length pub_rid $12;
 	set dat_:(rename=(var3=pub_rid_));
@@ -127,17 +150,51 @@ data dat;
 	if index(dat,'：');
 	drop  var: pub_rid_;
 run;
+
+proc sql;
+create table dat_lb1 as select
+scan(a.var3,2,'：') as pub_rid length=12,b.lbcat as dat
+from dat_lb as a left join derived.lb as b on compress(a.var3,'0123456789','k')=b.pub_rid;quit;
+proc datasets lib=work ;delete dat_lb;run;
+
+proc sql;
+create table dat_lb_detail1 as select
+scan(a.var3,2,'：') as pub_rid length=12 ,b.lbcat as dat
+from dat_lb_detail as a left join derived.lb_detail as b on compress(a.var3,'1234567890','k')=b.pub_rid;quit;
+proc datasets lib=work ;delete dat_lb_detail;run;
+
+proc sql;
+create table dat_hbv1 as select
+scan(a.var3,2,'：') as pub_rid length=12 ,b.hbvcat as dat
+from dat_hbv as a left join derived.hbv as b on compress(a.var3,'1234567890','k')=b.pub_rid;quit;
+proc datasets lib=work ;delete dat_hbv;run;
+
+data dat;
+length dat $200;
+  set dat dat_lb1 dat_lb_detail1 dat_hbv1;
+run;
+
+
 proc datasets lib=work ;delete dat_:;run;
 proc sort data=sn ;by pub_rid;run;
 proc sort data=dat ;by pub_rid;run;
 proc sort data=selected out=selected(where=(lockstat='未提交'));by pub_rid;run;
 
 proc sql;
-	create table prefinal as select a.*,b.sn,c.dat,status,icfdat from selected as a 
+	create table prefinal as select a.*,b.sn,c.dat,d.status,e.icfdat from selected as a 
 		left join sn b on compress(a.pub_rid)=compress(b.pub_rid)
 			left join dat as c on compress(a.pub_rid)=compress(c.pub_rid)
-				left join derived.subject as d on a.subjid=d.subjid;
+				left join derived.subject as d on a.subjid=d.subjid
+left join derived.dm as e on a.subjid=e.subjid;
 quit;
+
+
+data prefinal;
+  set prefinal;
+   if pub_tname='实验室检查' and index(dat,'采样日期') eq 0 then output;
+  if pub_tname='病毒学检查' and index(dat,'采样日期') eq 0 then output;
+  if  pub_tname not in ('实验室检查','病毒学检查') then output;
+  run;
 
 data EDC.unsub;
 	retain studyid siteid subjid status icfdat visit pub_tname    sn  dat lockstat lastmodifytime;
@@ -152,5 +209,4 @@ proc sql;
 	create table EDC.zsview as select a.*,coalesce(left(compress(put(b.zs1,best.),'.')),'0') as zs1 '未提交页数' from zsview as a left join zsview1 as b on a.siteid=b.siteid;
 quit;
 
-
-data out.l7; set  EDC.unsub(label='未提交页面汇总'); run;
+data out.l7(label='未提交页面汇总'); set  EDC.unsub; run;

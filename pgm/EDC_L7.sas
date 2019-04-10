@@ -77,7 +77,7 @@ SELECT studyid as studyid,
 siteid as siteid,
 count(*) as saecount 'SAE数',
 count(distinct subjid) as saesubjcount 'SAE受试者数' FROM derived.ae obj 
-where obj.saeyn='是' and lockstat ^= '未提交' 
+where obj.aeser='是' and lockstat ^= '未提交' 
 GROUP BY studyid,siteid
 ;
 /*subjectview
@@ -136,4 +136,4 @@ LEFT JOIN EDC.pisubjview pisubjview on zxlsb.zxbhzd=pisubjview.siteid and pisubj
 quit;
 
 
-data out.l1; set EDC.EDC_metrics(label='EDC进展报告'); run;
+data out.l1(label='EDC进展报告'); set EDC.EDC_metrics; run;
