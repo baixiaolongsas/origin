@@ -178,5 +178,5 @@ proc sql;
 	 group by subject.siteid ;
 quit;
 
-data out.l4; set edc.unsdv_cra(label='CRAÎ´ºË²éÒ³Ã÷Ï¸'); run;
+data out.l4(label='CRAÎ´ºË²éÒ³Ã÷Ï¸'); set edc.unsdv_cra; run;
 

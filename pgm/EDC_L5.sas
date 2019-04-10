@@ -277,4 +277,4 @@ group by siteid;
 quit;
 
 
-data out.l2; set edc.visitmiss(label='·ÃÊÓÈ±Ê§»ã×Ü'); run;
+data out.l2(label='·ÃÊÓÈ±Ê§»ã×Ü'); set edc.visitmiss; run;
