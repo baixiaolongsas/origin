@@ -168,5 +168,5 @@ data edc.unsdv_MED;
 	drop x length WARNING creator createtime modify ;
 run;
 
-data out.l6; set edc.unsdv_MED(label='MEDÎ´ºË²éÒ³Ã÷Ï¸'); run;
 
+data out.l6(label='MEDÎ´ºË²éÒ³Ã÷Ï¸'); set edc.unsdv_MED; run;

@@ -42,10 +42,6 @@ proc datasets lib=work nolist kill; run;
 
 
 
-
-
-
-
 /*筛选出费筛选失败病例*/
 proc sort data=derived.subject out=subject(keep=studyid siteid subjid pub_rid status where=(status ne "筛选失败"));by studyid pub_rid subjid;run;
 proc sort data=edc.visittable out=visittable(keep=studyid visitname visitid domain dmname svnum);by studyid;run;
@@ -77,14 +73,22 @@ data sub_v_sv_hc;
 	if a;
 run;
 /*去除已选择未采集的crf*/
-data uncollect;
-	length svnum $20;
-	set derived.uncollect(keep=recordid svnum visitnum visitnum tableid status where=(status='已确认') rename=(svnum=svnum1));
-	rename recordid=pub_rid visitnum=visitid tableid=domain;
-	svnum=svnum1;
-	drop status svnum1;
-run;
+/***************************  暂无uncollect up ********************************/
+/*data uncollect;*/
+/*	length svnum $20;*/
+/*	set derived.uncollect(keep=recordid svnum visitnum visitnum tableid status where=(status='已确认') rename=(svnum=svnum1));*/
+/*	rename recordid=pub_rid visitnum=visitid tableid=domain;*/
+/*	svnum=svnum1;*/
+/*	drop status svnum1;*/
+/*run;*/
 
+data uncollect;
+  pub_rid='';
+  visitid='';
+  domain='';
+  svnum='';
+run; 
+/***************************  暂无uncollect dowwn********************************/
 
 proc sort data=uncollect nodupkeys dupout=a;by pub_rid visitid domain svnum;run;
 
@@ -95,16 +99,31 @@ data sub_uncollect;
 
 run;
 /*连接试验数据治疗结束页，已判断是否治疗完成*/
-data ds1;
-	set derived.&ds1.(keep=subjid  pub_tid);
-	rename pub_tid=ds1;
+
+/***************************  暂无治疗结束页 up********************************/
+/*data ds1;*/
+/*	set derived.eot(keep=subjid  pub_tid eotdat)*/
+/*	    derived.eota(keep=subjid  pub_tid eotdat)*/
+/*		derived.eotc(keep=subjid  pub_tid eotdat)*/
+/*		derived.eoto(keep=subjid  pub_tid eotdat);*/
+/*	rename pub_tid=ds1;*/
+/*run;*/
+/*proc sort data=ds1;by subjid eotdat;run;*/
+/*data ds1;*/
+/*  set ds1;*/
+/*  by subjid;*/
+/*  if last.subjid;*/
+/*  keep subjid ds1;*/
+/*run;*/
+/*proc sql;*/
+/*	create table sub_ds1 as select a.*,b.ds1 from sub_uncollect as a left join ds1 as b on a.subjid=b.subjid;*/
+/*quit;*/
+
+data sub_ds1;
+  set sub_uncollect;
+  ds1='';
 run;
-proc sort data=ds1;by subjid;run;
-
-
-proc sql;
-	create table sub_ds1 as select a.*,b.ds1 from sub_uncollect as a left join ds1 as b on a.subjid=b.subjid;
-quit;
+/***************************  暂无治疗结束页 down********************************/
 
 /*区分有访视日期的，与无访视日期的访视*/
 data prefinal1 prefinal_1;
@@ -116,11 +135,14 @@ run;
 /*利用治疗结束页判断是否页面缺失并且非访视缺失*/
 proc sql;
 	create table prefinal2 as select *,count(*) as crfnum,count(jl) as crfnum1 from prefinal1 group by subjid,visitid;
+    
+    create table prefinal21 as select a.*, b.visdat as visdat1 'C1D1访视日期' from prefinal2 as a left join derived.sv(where=(visit='C1D1')) as b on a.subjid=b.subjid;
 quit;
 
+
 data prefinal3;
-	set prefinal2;
-	if ds1 ne '' and jl='' and crfnum1 ne 0;
+	set prefinal21;
+	if (ds1 ne '' and jl='' and crfnum1 ne 0) or (dmname in ('靶病灶' '非靶病灶') and visdat1 ne '' and jl='');
 run;
 /*有访视日期的页面，连接下一次访视的访视日期*/
 proc sort data=prefinal_1;by subjid  &visdat. visitid svnum;run; 
@@ -135,10 +157,14 @@ proc sql;
 	create table prefinal_2 as select a.*,b.visdat_ from prefinal_1 as a left join sv_1 as b on a.subjid=b.subjid and input(a.visitid,best.)+1=input(b.visitid,best.);
 
 	create table prefinal_3 as select *,count(*) as crfnum,count(jl) as crfnum1 from prefinal_2 group by subjid,visitid;
+
+    create table prefinal_31 as select a.*, b.randgrop from prefinal_3 as a left join derived.rand as b on a.subjid=b.subjid;
 quit;
+
+
 /*访视日期距今大于15天，并且下个访视已填写这个访视没填，并且非访视缺失*/
 data prefinal_4;
-	set prefinal_3;
+	set prefinal_31;
 	if crfnum1 ne crfnum and jl='' and crfnum1 ne 0;
 	if today()-input(&visdat.,yymmdd10.)>15 or visdat_ ne '';
 run;
@@ -162,5 +188,4 @@ count(*) as qscrf '页面缺失数' from edc.crfmiss qscrfview group by qscrfview.sit
 ;
 quit;
 
-
-data out.l3; set edc.crfmiss(label='页面缺失汇总'); run;
+data out.l3(label='页面缺失汇总'); set edc.crfmiss; run;

@@ -2,7 +2,7 @@
 CODE NAME                 : <alltoexcel.sas>
 CODE TYPE                 : <SHR_1210 >
 DESCRIPTION               : <数据导出> 
-SOFTWARE/VERSION#         : <SAS 9.4>
+SOFTWARE/VERSION#         : <SAS 9.3>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
@@ -79,7 +79,7 @@ run;
 		else if NAME='lastmodifytime' then N=18;
 		else if NAME='sn' then N=19;
 		else if name='lbcat' then N=20;
-		else if find(NAME,'dat') then N=20+VARNUM;
+		else if find(NAME,'dat') or NAME in ('tucat' 'dacat' 'extrt' 'tchcat' 'xhocat') then N=20+VARNUM;
 		
 
 	run;
@@ -178,5 +178,5 @@ proc sql;
 	 group by subject.siteid ;
 quit;
 
-data out.l4; set edc.unsdv_cra(label='CRA未核查页明细'); run;
+data out.l4(label='CRA未核查页明细'); set edc.unsdv_cra; run;
 

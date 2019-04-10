@@ -36,6 +36,43 @@ data sv;
 run;
 proc sort ;by subjid &visdat;run;
 
+/*无sfzqb，自主创建  up*/
+/*PROC IMPORT OUT= WORK.sfzqb */
+/*            DATAFILE= "D:\hr_projects\SHR-1210-III-311\doc\SHR-1210-III-311-访视编码_20190402.xlsx" */
+/*            DBMS=EXCEL REPLACE;*/
+/*     RANGE="访视编码$"; */
+/*     GETNAMES=YES;*/
+/*     MIXED=YES;*/
+/*     SCANTEXT=YES;*/
+/*     USEDATE=YES;*/
+/*     SCANTIME=YES;*/
+/*RUN;*/
+/*proc sql;*/
+/*	create table sv_sfzqb as */
+/*    select a.subjid, a.visit, input(a.visitnum,best.) as bm, a.&visdat.,*/
+/*           b._COL3, b._COL4 */
+/*    from derived.sv as a left join sfzqb as b on input(a.visitnum,best.)+1=input(b._COL3,best.)*/
+/*    where substr(visit,1,6) ne '筛选期';*/
+/*quit;*/
+/*proc sort;by subjid bm;run;*/
+/*data sfzqb5;*/
+/*	set sv_sfzqb(drop=bm);*/
+/*	if &visdat. ne  ''  then do;*/
+/*	open=input(&visdat.,yymmdd10.)+18;*/
+/*	checkdat=input(&visdat.,yymmdd10.)+21;*/
+/*	close=input(&visdat.,yymmdd10.)+24;*/
+/*	end;*/
+/*	mc=_COL4;*/
+/*	bm=_COL3;*/
+/*	format open close  yymmdd10.;*/
+/*run;*/
+/**/
+/*data edc.sfzqb;*/
+/*	set sfzqb5(keep=subjid mc bm open close checkdat);*/
+/*run;*/
+/*无sfzqb，自主创建  down*/
+
+
 proc sql;
 	create table sv_sfzqb as select coalesce(a.subjid,b.subjid) as subjid,coalesce(a.&visit,b.mc) as visit,coalesce(a.&visitnum,b.bm) as visitnum,a.&visdat,b.checkdat,open,close from sv as a full join EDC.sfzqb(where=(close ne .)) as b on a.subjid=b.subjid and a.&visitnum=b.bm;
 quit;
@@ -68,7 +105,7 @@ proc sql;
 			:varname2 separated by ' ',
 			:rename2 separated by ';'
 			from DICTIONARY.COLUMNS
-		  where libname = "DERIVED" and memname="&DNAME" and (label='记录ID' or index(label,'日期') );
+		  where libname = "DERIVED" and memname="&DNAME" and (label in('记录ID','模块名称','药物名称', '治疗分类') or index(label,'日期') );
 
 		quit;
 		data sn_&DNAME;
@@ -136,8 +173,10 @@ proc sql;
 	create table prefinal as select a.*,b.sn,c.dat,status,icfdat from selected as a 
 		left join sn b on compress(a.pub_rid)=compress(b.pub_rid)
 			left join dat as c on compress(a.pub_rid)=compress(c.pub_rid)
-				left join derived.subject as d on a.subjid=d.subjid;
+				left join derived.subject as d on a.subjid=d.subjid
+                    left join derived.dm as e on a.subjid=e.subjid;
 quit;
+
 
 data EDC.unsub;
 	retain studyid siteid subjid status icfdat visit pub_tname    sn  dat lockstat lastmodifytime;
@@ -147,10 +186,10 @@ data EDC.unsub;
 run;
 
 
+
 proc sql;
 	create table zsview1 as select siteid,count(pub_rid) as zs1 '未提交页数' from prefinal group by siteid;
 	create table EDC.zsview as select a.*,coalesce(left(compress(put(b.zs1,best.),'.')),'0') as zs1 '未提交页数' from zsview as a left join zsview1 as b on a.siteid=b.siteid;
 quit;
 
-
-data out.l7; set  EDC.unsub(label='未提交页面汇总'); run;
+data out.l7(label='未提交页面汇总'); set  EDC.unsub; run;

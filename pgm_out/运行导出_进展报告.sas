@@ -25,8 +25,8 @@ proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
 
 %include '..\pgm\EDC_L1.sas';
-%include '..\pgm\EDC_L2.sas';
-%include '..\pgm\EDC_L3.sas';
+/*%include '..\pgm\EDC_L2.sas';*/
+/*%include '..\pgm\EDC_L3.sas';*/
 %include '..\pgm\EDC_L4.sas';
 %include '..\pgm\EDC_L5.sas';
 %include '..\pgm\EDC_L6.sas';
