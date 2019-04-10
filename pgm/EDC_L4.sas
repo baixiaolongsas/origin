@@ -163,11 +163,16 @@ quit;
 
 
 /*访视日期距今大于15天，并且下个访视已填写这个访视没填，并且非访视缺失*/
+proc freq data=prefinal_31; table dmname; run;
+
+/*对照组受试者不需要出现1210给药记录、免疫原性和药物浓度、反应性毛细血管增生观察表、阿帕替尼用药记录、阿帕替尼发放记录、阿帕替尼回收记录、SHR-1210治疗结束页、PD后继续治疗疗效评估的页面缺失*/
 data prefinal_4;
 	set prefinal_31;
+	if randgrop='对照组' and dmname in('SHR-1210给药记录' '免疫原性和药物浓度采血') then delete;
 	if crfnum1 ne crfnum and jl='' and crfnum1 ne 0;
 	if today()-input(&visdat.,yymmdd10.)>15 or visdat_ ne '';
 run;
+/*对照组受试者不需要出现1210给药记录、免疫原性和药物浓度、反应性毛细血管增生观察表、阿帕替尼用药记录、阿帕替尼发放记录、阿帕替尼回收记录、SHR-1210治疗结束页、PD后继续治疗疗效评估的页面缺失*/
 
 data edc.crfmiss;
 	retain studyid siteid subjid status visitname visitnum dmname &visdat. day;
