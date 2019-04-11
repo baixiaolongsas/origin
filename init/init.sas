@@ -24,8 +24,8 @@ Ver# Peer Reviewer        Code History Description
 %global study root ;
 
 
-%let study=%str(shr_1210_iii_301_esc);
-%let root=D:\HR_PROJECTS\shr_1210_iii_301_esc;
+%let study=%str(IMR-OPP-20170517);
+%let root=D:\HR_PROJECTS\IMR-OPP-20170517;
 
 
 
