@@ -2,10 +2,12 @@
 /data/derived/*
 /data/edc/*
 /data/raw/*
+/data/out/*
 !/data/dc/null
 !/data/derived/null
 !/data/edc/null
 !/data/raw/null
+!/data/out/null
 
 /output/*
 !/output/null
