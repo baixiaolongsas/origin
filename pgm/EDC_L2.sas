@@ -1,8 +1,8 @@
 /*soh**********************************************************************************
-CODE NAME                 : <edc.l2>
-CODE TYPE                 : <>
-DESCRIPTION               : <DM未核查页明细> 
-SOFTWARE/VERSION#         : <SAS 9.4>
+CODE NAME                 : <alltoexcel.sas>
+CODE TYPE                 : <SHR_1210 >
+DESCRIPTION               : <数据导出> 
+SOFTWARE/VERSION#         : <SAS 9.3>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
@@ -167,5 +167,6 @@ data edc.unsdv_DM;
 	if lockstat ne '未提交';
 	drop x length WARNING creator createtime modify ;
 run;
+
 
 data out.l5(label='DM未核查页明细'); set edc.unsdv_DM; run;

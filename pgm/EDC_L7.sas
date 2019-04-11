@@ -77,7 +77,7 @@ SELECT studyid as studyid,
 siteid as siteid,
 count(*) as saecount 'SAE数',
 count(distinct subjid) as saesubjcount 'SAE受试者数' FROM derived.ae obj 
-where obj.saeyn='是' and lockstat ^= '未提交' 
+where obj.aeser='是' and lockstat ^= '未提交' 
 GROUP BY studyid,siteid
 ;
 /*subjectview
@@ -102,19 +102,6 @@ quit;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 proc sql;
 create table EDC.EDC_metrics as 
 SELECT zxlsb.zxbhzd as zxbhzd '研究中心编号',zxlsb.dw as dw '研究中心名称' ,COALESCE(subjectview.jlcount,0) as jlcount '受试者筛选数',
@@ -134,6 +121,5 @@ LEFT JOIN EDC.zynumview zynum on zxlsb.zxbhzd=zynum.siteid and zynum.zynum >0
 LEFT JOIN EDC.pisubjview pisubjview on zxlsb.zxbhzd=pisubjview.siteid and pisubjview.pis >0 
  ORDER BY zxlsb.zxbhzd;
 quit;
-
 
 data out.l1(label='EDC进展报告'); set EDC.EDC_metrics; run;

@@ -30,9 +30,9 @@ proc datasets lib=work nolist kill; run;
 %let visit=visit;/*访视阶段的变量名，是否有的项目的该变量名为svstage？*/
 %let visitnum=visitnum; /*访视序号的变量名，是否有的项目的该变量名为其他的？*/
 %let visdat=visdat;/*访视日期的变量名，是否有的项目叫svstdat？*/
-%let specialvisit='生存随访','C8后访视';
-%let ds1=ds1;/*治疗结束页名称，是否有项目会有多个治疗结束页，需要确定用哪个*/
-%let novisdat='共同页','计划外访视'; /*有的项目不统计计划外*/
+%let specialvisit='生存随访','C8后访视','计划外访视';
+%let ds1=ds;/*治疗结束页名称，是否有项目会有多个治疗结束页，需要确定用哪个*/
+%let novisdat='共同页'; /*有的项目不统计计划外*/
 
 
 
@@ -76,6 +76,7 @@ data sub_v_sv_hc;
 	by pub_rid visitid domain svnum;
 	if a;
 run;
+
 /*去除已选择未采集的crf*/
 data uncollect;
 	length svnum $20;
@@ -85,15 +86,18 @@ data uncollect;
 	drop status svnum1;
 run;
 
-
 proc sort data=uncollect nodupkeys dupout=a;by pub_rid visitid domain svnum;run;
 
 data sub_uncollect;
 	merge sub_v_sv_hc uncollect(in=b);
 	by pub_rid visitid domain svnum;
 	if ^b;
-
 run;
+
+
+
+
+
 /*连接试验数据治疗结束页，已判断是否治疗完成*/
 data ds1;
 	set derived.&ds1.(keep=subjid  pub_tid);
@@ -105,6 +109,9 @@ proc sort data=ds1;by subjid;run;
 proc sql;
 	create table sub_ds1 as select a.*,b.ds1 from sub_uncollect as a left join ds1 as b on a.subjid=b.subjid;
 quit;
+
+
+
 
 /*区分有访视日期的，与无访视日期的访视*/
 data prefinal1 prefinal_1;
@@ -118,10 +125,13 @@ proc sql;
 	create table prefinal2 as select *,count(*) as crfnum,count(jl) as crfnum1 from prefinal1 group by subjid,visitid;
 quit;
 
+
 data prefinal3;
 	set prefinal2;
 	if ds1 ne '' and jl='' and crfnum1 ne 0;
 run;
+
+
 /*有访视日期的页面，连接下一次访视的访视日期*/
 proc sort data=prefinal_1;by subjid  &visdat. visitid svnum;run; 
 
@@ -151,6 +161,7 @@ data edc.crfmiss;
 	visitnum=input(visitid,best.);
 	keep studyid siteid subjid status visitname visitnum dmname &visdat. day;
 	label day ='页面缺失据今天数';
+	where status ne '筛选中';
 run;
 proc sort data=edc.crfmiss;by subjid visitnum;run;
 
