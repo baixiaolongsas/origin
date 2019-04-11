@@ -53,8 +53,9 @@ proc sql;
 			into 
 			:varnames separated by ','
 				 from DICTIONARY.COLUMNS
-          where libname = "DERIVED" and memname="&DNAME" and label in ('项目代码','研究中心编号','受试者代码','访视','CRF状态','修改时间','记录ID','表名称');
-		  create table pre_&DNAME as select &varnames from derived.&DNAME;
+          where libname = "DERIVED" and memname="&DNAME" and label in ('项目代码','研究中心编号','受试者代码','访视','CRF状态','修改时间','记录ID','表名称','模块名称','药物名称');
+
+          create table pre_&DNAME as select &varnames from derived.&DNAME;
 		  
 		  select name,name||"=var"||left(put(varnum,best.))
 		  	into
@@ -68,9 +69,9 @@ proc sql;
 			:varname2 separated by ' ',
 			:rename2 separated by ';'
 			from DICTIONARY.COLUMNS
-		  where libname = "DERIVED" and memname="&DNAME" and (label='记录ID' or index(label,'日期') );
-
+		  where libname = "DERIVED" and memname="&DNAME" and (label in('记录ID','模块名称','药物名称') or index(label,'日期') );
 		quit;
+
 		data sn_&DNAME;
 			set DERIVED.&DNAME(keep=&varname1.);
 			rename &rename1.;
@@ -87,6 +88,9 @@ proc sql;
 %mend get_unsub_pre;
 
 %get_unsub_pre;
+
+
+
 
 data pre;
 	set pre_:;
@@ -143,7 +147,7 @@ data EDC.unsub;
 	retain studyid siteid subjid status icfdat visit pub_tname    sn  dat lockstat lastmodifytime;
 	set prefinal;
 	keep studyid siteid subjid status icfdat visit pub_tname    sn  dat lockstat lastmodifytime;
-	label sn='序号' dat='参考日期';
+	label sn='序号' dat='参考字段';
 run;
 
 
@@ -151,6 +155,5 @@ proc sql;
 	create table zsview1 as select siteid,count(pub_rid) as zs1 '未提交页数' from prefinal group by siteid;
 	create table EDC.zsview as select a.*,coalesce(left(compress(put(b.zs1,best.),'.')),'0') as zs1 '未提交页数' from zsview as a left join zsview1 as b on a.siteid=b.siteid;
 quit;
-
 
 data out.l7(label='未提交页面汇总'); set  EDC.unsub; run;

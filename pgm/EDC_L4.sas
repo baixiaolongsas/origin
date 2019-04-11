@@ -31,7 +31,7 @@ proc datasets lib=work nolist kill; run;
 %let visitnum=visitnum; /*访视序号的变量名，是否有的项目的该变量名为其他的？*/
 %let visdat=visdat;/*访视日期的变量名，是否有的项目叫svstdat？*/
 %let specialvisit='生存随访','C8后访视';
-%let ds1=ds1;/*治疗结束页名称，是否有项目会有多个治疗结束页，需要确定用哪个*/
+%let ds1=ds;/*治疗结束页名称，是否有项目会有多个治疗结束页，需要确定用哪个*/
 %let novisdat='共同页','计划外访视'; /*有的项目不统计计划外*/
 
 
@@ -49,6 +49,7 @@ proc datasets lib=work nolist kill; run;
 /*筛选出费筛选失败病例*/
 proc sort data=derived.subject out=subject(keep=studyid siteid subjid pub_rid status where=(status ne "筛选失败"));by studyid pub_rid subjid;run;
 proc sort data=edc.visittable out=visittable(keep=studyid visitname visitid domain dmname svnum);by studyid;run;
+
 
 proc sql;
 	/*利用受试者信息表与访视报告编码构建 构建总表*/
@@ -77,6 +78,10 @@ data sub_v_sv_hc;
 	if a;
 run;
 /*去除已选择未采集的crf*/
+
+
+
+
 data uncollect;
 	length svnum $20;
 	set derived.uncollect(keep=recordid svnum visitnum visitnum tableid status where=(status='已确认') rename=(svnum=svnum1));
@@ -92,9 +97,15 @@ data sub_uncollect;
 	merge sub_v_sv_hc uncollect(in=b);
 	by pub_rid visitid domain svnum;
 	if ^b;
-
 run;
+
+
+
+
+
 /*连接试验数据治疗结束页，已判断是否治疗完成*/
+
+/***********************************************无ds1数据集  用ds来代替*******************************************************/
 data ds1;
 	set derived.&ds1.(keep=subjid  pub_tid);
 	rename pub_tid=ds1;
@@ -105,6 +116,10 @@ proc sort data=ds1;by subjid;run;
 proc sql;
 	create table sub_ds1 as select a.*,b.ds1 from sub_uncollect as a left join ds1 as b on a.subjid=b.subjid;
 quit;
+
+/*缩减版程序*/
+/*data sub_ds1; set sub_uncollect;run; */
+/***********************************************无ds1数据集  用ds来代替*******************************************************/
 
 /*区分有访视日期的，与无访视日期的访视*/
 data prefinal1 prefinal_1;
@@ -151,6 +166,7 @@ data edc.crfmiss;
 	visitnum=input(visitid,best.);
 	keep studyid siteid subjid status visitname visitnum dmname &visdat. day;
 	label day ='页面缺失据今天数';
+	where status ne '筛选中';
 run;
 proc sort data=edc.crfmiss;by subjid visitnum;run;
 

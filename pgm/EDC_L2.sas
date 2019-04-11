@@ -1,8 +1,8 @@
 /*soh**********************************************************************************
-CODE NAME                 : <edc.l2>
-CODE TYPE                 : <>
-DESCRIPTION               : <DM未核查页明细> 
-SOFTWARE/VERSION#         : <SAS 9.4>
+CODE NAME                 : <alltoexcel.sas>
+CODE TYPE                 : <SHR_1210 >
+DESCRIPTION               : <数据导出> 
+SOFTWARE/VERSION#         : <SAS 9.3>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
