@@ -26,7 +26,7 @@ dm log 'clear';
 proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
 proc sql;
-	create table hchzb_sum as select input(jl,best.) as jl,yhczdsls 'MED已核查字段数量',xhczdzsls 'MED需核查字段数量' from edc.hchzb where xhczdzsls>yhczdsls;
+	create table hchzb_sum as select input(jl,best.) as jl,yhczdsls 'MED已核查字段数量',xhczdzsls 'MED需核查字段数量' from edc.hchzb where input(xhczdzsls,best.)>input(yhczdsls,best.);
 quit;
  proc format library=RAW cntlout=work.cntlfmt;quit;
  proc sort data=cntlfmt(keep=FMTNAME LENGTH) nodupkeys out=fmt;by _all_;run;
@@ -168,5 +168,34 @@ data edc.unsdv_MED;
 	drop x length WARNING creator createtime modify ;
 run;
 
-data out.l6(label='MED未核查页明细'); set edc.unsdv_MED; run;
 
+data edc.unsdv_med(rename=(tid1=tid visit1=visit svnum1=svnum var_11=var_1 ));
+   retain sitename siteid subjid tid1 lockstat visit1 visitnum svnum1 yhczdsly xhczdzsl lastmodifytime var_11;
+	set abs_final;
+	if lockstat ne '未提交';
+	length tid1 $20 visit1 $50 svnum1 $50 var_11 $50 ;
+	tid1=compress(tid);visit1=compress(visit);svnum1=compress(svnum);var_11=compress(var_1);lastmodifytime=put(input(compress(modifytime),datetime20.),is8601dt.);
+	drop x length WARNING creator createtime modify  tid visit svnum var_1 modifytime;
+	label tid1="表名称" visit1="访视名称" svnum1="访视内序号" var_11="变量名1,:变量值"   lastmodifytime="修改时间";
+run; 
+
+
+proc sql;
+create table  edc.unsdv_med1 as 
+select 
+a.*,b.mchcat,coalescec(c.hbvcat,d.hbvcat) as hbvcat
+from edc.unsdv_med as a
+left join derived.mch as b on a.subjid=b.subjid and a.tid=b.pub_tname and a.visit=b.visit and a.svnum=b.svnum and scan(a.var_1,2,":")=b.sn and a.lastmodifytime=b.lastmodifytime
+left join derived.hbv as c on a.subjid=c.subjid and a.tid=c.pub_tname and a.visit=c.visit and a.svnum=c.svnum and scan(a.var_1,2,":")=c.sn and a.lastmodifytime=c.lastmodifytime
+left join derived.hbv1 as d on a.subjid=d.subjid and a.tid=d.pub_tname and a.visit=d.visit and a.svnum=d.svnum and scan(a.var_1,2,":")=d.sn and a.lastmodifytime=d.lastmodifytime
+;
+quit;
+
+data edc.unsdv_med;
+set edc.unsdv_med1;
+if tid="抗肿瘤药物治疗史" then var_5=compress("治疗类别:"||mchcat);
+if tid in ("病毒学检查","病毒学检查明细") then var_3=compress("模块名称:"||hbvcat);
+drop mchcat hbvcat;
+run;
+
+data out.l6(label='MED未核查页明细'); set edc.unsdv_MED; run;

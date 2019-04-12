@@ -2,7 +2,7 @@
 CODE NAME                 : <alltoexcel.sas>
 CODE TYPE                 : <SHR_1210 >
 DESCRIPTION               : <数据导出> 
-SOFTWARE/VERSION#         : <SAS 9.4>
+SOFTWARE/VERSION#         : <SAS 9.3>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
@@ -26,7 +26,7 @@ dm log 'clear';
 proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
 proc sql;
-	create table hchzb_sum as select input(jl,best.) as jl,yhczdsly 'CRA已核查字段数量',xhczdzsl 'CRA需核查字段数量' from edc.hchzb where xhczdzsl>yhczdsly;
+	create table hchzb_sum as select input(jl,best.) as jl,yhczdsly 'CRA已核查字段数量',xhczdzsl 'CRA需核查字段数量' from edc.hchzb where input(xhczdzsl,best.)>input(yhczdsly,best.);
 quit;
  proc format library=RAW cntlout=work.cntlfmt;quit;
  proc sort data=cntlfmt(keep=FMTNAME LENGTH) nodupkeys out=fmt;by _all_;run;
@@ -162,21 +162,68 @@ run;
 %mend;
 %test;
 
-data edc.unsdv_cra;
+data edc.unsdv_cra(rename=(tid1=tid visit1=visit svnum1=svnum var_11=var_1 ));
+   retain sitename siteid subjid tid1 lockstat visit1 visitnum svnum1 yhczdsly xhczdzsl lastmodifytime var_11;
 	set abs_final;
 	if lockstat ne '未提交';
-	drop x length WARNING creator createtime modify ;
-run;
+	length tid1 $20 visit1 $50 svnum1 $50 var_11 $50 ;
+	tid1=compress(tid);visit1=compress(visit);svnum1=compress(svnum);var_11=compress(var_1);lastmodifytime=put(input(compress(modifytime),datetime20.),is8601dt.);
+	drop x length WARNING creator createtime modify  tid visit svnum var_1 modifytime;
+	label tid1="表名称" visit1="访视名称" svnum1="访视内序号" var_11="变量名1,:变量值"   lastmodifytime="修改时间";
+run; 
+
+
 
 
 
 proc sql;
-	create table EDC.sdvnumview as select siteid,(sum(input(hchzb.xhczdzsl,best.))-sum(input(hchzb.yhczdsly,best.))) as sdvnum '未SDV字段数',sum(input(hchzb.xhczdzsl,best.)) as sdvznum '需SDV字段数',
-	round(sum( input(hchzb.xhczdzsl,best.)-input(hchzb.yhczdsly,best.))/sum(input(hchzb.xhczdzsl,best.))*100,0.0001) as sdvrate '未SDV百分率(%)' from EDC.hchzb 
-	left join EDC.spjlb spjlb on spjlb.jl=COALESCE(hchzb.ejzbfjl,hchzb.jl,) and spjlb.dqzt NE '00'  
-	left join DERIVED.subject subject on subject.pub_rid=COALESCE(hchzb.fzbdrkbjl,hchzb.jl) where dqzt is not null and subject.siteid is not null 
-	 group by subject.siteid ;
+create table  edc.unsdv_cra1 as 
+select 
+a.*,b.mchcat,coalescec(c.hbvcat,d.hbvcat) as hbvcat
+from edc.unsdv_cra as a
+left join derived.mch as b on a.subjid=b.subjid and a.tid=b.pub_tname and a.visit=b.visit and a.svnum=b.svnum and scan(a.var_1,2,":")=b.sn and a.lastmodifytime=b.lastmodifytime
+left join derived.hbv as c on a.subjid=c.subjid and a.tid=c.pub_tname and a.visit=c.visit and a.svnum=c.svnum and scan(a.var_1,2,":")=c.sn and a.lastmodifytime=c.lastmodifytime
+left join derived.hbv1 as d on a.subjid=d.subjid and a.tid=d.pub_tname and a.visit=d.visit and a.svnum=d.svnum and scan(a.var_1,2,":")=d.sn and a.lastmodifytime=d.lastmodifytime
+;
 quit;
 
+data edc.unsdv_cra;
+set edc.unsdv_cra1;
+if tid="抗肿瘤药物治疗史" then var_5=compress("治疗类别:"||mchcat);
+if tid in ("病毒学检查","病毒学检查明细") then var_3=compress("模块名称:"||hbvcat);
+drop mchcat hbvcat;
+run;
+
+proc sql;
+create table edc.sdvnumview1 as
+select 
+subject.siteid as siteid,
+sum(input(hchzb.xhczdzsl,best.)) as sdvznum '需SDV字段数'
+from edc.hchzb 
+left join derived.subject subject on subject.pub_rid=COALESCEc(hchzb.fzbdrkbjl,hchzb.jl)
+left join edc.spjlb spjlb on (spjlb.jl=hchzb.jl or spjlb.jl=hchzb.ejzbfjl) and spjlb.dqzt ^= '00' 
+where   hchzb.xhczdzsl is not null and (spjlb.lastmodifytime is not null) or  (hchzb.tid='subject' and (subject.lockstat ^='00' or subject.lockstat is not null)) 
+group by subject.siteid 
+;
+quit;
+
+
+
+
+proc sql;
+	create table EDC.sdvnumview2 as select 
+siteid,(sum(input(hchzb.xhczdzsl,best.))-sum(input(hchzb.yhczdsly,best.))) as sdvnum '未SDV字段数'
+from EDC.unsdv_cra as hchzb
+	
+   group by siteid ;
+quit;
+
+data EDC.sdvnumview;
+merge EDC.sdvnumview1 EDC.sdvnumview2;
+by siteid ;
+sdvrate=round(sdvnum/sdvznum*100,0.0001) ;
+label sdvrate='未SDV百分率(%)';
+run;
+ 
 data out.l4(label='CRA未核查页明细'); set edc.unsdv_cra; run;
 

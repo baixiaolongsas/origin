@@ -140,11 +140,35 @@ proc sql;
 quit;
 
 data EDC.unsub;
-	retain studyid siteid subjid status icfdat visit pub_tname    sn  dat lockstat lastmodifytime;
+	retain studyid siteid subjid status icfdat visit pub_tname   cat sn  dat lockstat lastmodifytime;
 	set prefinal;
-	keep studyid siteid subjid status icfdat visit pub_tname    sn  dat lockstat lastmodifytime;
+    length cat $50;
+	cat="";
+	keep studyid siteid subjid status icfdat visit pub_tname   cat  sn  dat lockstat lastmodifytime;
 	label sn='序号' dat='参考日期';
 run;
+
+
+proc sql;
+create table  edc.unsub1 as 
+select 
+a.*,b.mchcat,coalescec(c.hbvcat,d.hbvcat) as hbvcat
+from edc.unsub as a
+left join derived.mch as b on a.subjid=b.subjid and a.pub_tname=b.pub_tname and a.visit=b.visit  and a.lastmodifytime=b.lastmodifytime
+left join derived.hbv as c on a.subjid=c.subjid and a.pub_tname=c.pub_tname and a.visit=c.visit and a.lastmodifytime=c.lastmodifytime
+left join derived.hbv1 as d on a.subjid=d.subjid and a.pub_tname=d.pub_tname and a.visit=d.visit and a.lastmodifytime=d.lastmodifytime
+;
+quit;
+
+data edc.unsub;
+set edc.unsub1;
+if pub_tname="抗肿瘤药物治疗史" then cat=compress("治疗类别:"||mchcat);
+if tid in ("病毒学检查","病毒学检查明细") then var_3=compress("模块名称:"||hbvcat);
+label cat="参考分类";
+drop mchcat hbvcat;
+run;
+
+
 
 
 proc sql;
@@ -152,5 +176,4 @@ proc sql;
 	create table EDC.zsview as select a.*,coalesce(left(compress(put(b.zs1,best.),'.')),'0') as zs1 '未提交页数' from zsview as a left join zsview1 as b on a.siteid=b.siteid;
 quit;
 
-
-data out.l7(label='未提交页面汇总'); set  EDC.unsub; run;
+data out.l7(label='未提交页面汇总'); set edc.unsub; run;

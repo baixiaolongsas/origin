@@ -93,7 +93,7 @@ sum(case when status='筛选中' then 1 else 0 end) as djcount '筛选数',
 sum(case when status='已入组' then 1 else 0 end) as rzcount '入组数',
 sum(case when status='筛选失败' then 1 else 0 end) as sbcount '筛选失败数',
 sum(case when obj.status='已完成' then 1 else 0 end) as dscount '已完成数',
-sum(case when obj.status='已中止' then 1 else 0 end) as dsucount '已中止数' FROM derived.subject obj 
+sum(case when obj.status='已终止' then 1 else 0 end) as dsucount '已中止数' FROM derived.subject obj 
 GROUP BY studyid,siteid,sitename ;
 
 quit;
@@ -106,17 +106,8 @@ quit;
 
 
 
-
-
-
-
-
-
-
-
-
 proc sql;
-create table EDC.EDC_metrics as 
+create table EDC_metrics as 
 SELECT zxlsb.zxbhzd as zxbhzd '研究中心编号',zxlsb.dw as dw '研究中心名称' ,COALESCE(subjectview.jlcount,0) as jlcount '受试者筛选数',
 COALESCE(subjectview.sbcount,0) as sbcount '筛选失败数',COALESCE(subjectview.rzcount+subjectview.dsucount+subjectview.dscount,0) as rzcount '受试者入组数',
 COALESCE(SAEView.saesubjcount,0) as saesubject 'SAE受试者数',COALESCE(SAEView.saecount,0) as saecount 'SAE条数',COALESCE(subjectview.dsucount,0) as dsucount '受试者已终止数',
@@ -135,5 +126,39 @@ LEFT JOIN EDC.pisubjview pisubjview on zxlsb.zxbhzd=pisubjview.siteid and pisubj
  ORDER BY zxlsb.zxbhzd;
 quit;
 
+proc sql;select cat(count(*)) into:num from EDC_metrics;quit;
 
-data out.l1(label='EDC进展报告'); set EDC.EDC_metrics; run;
+proc transpose data=edc_metrics out=metrics;run;
+data sum;
+set metrics;
+total=sum(of col1-col&num.);
+run;
+proc transpose data=sum out=metrics2(drop=_NAME_);
+run;
+
+data sdvnumto;
+set  edc.sdvnumview  end=last;
+if sdvznum=. then sdvznum=0;
+if sdvnum=. then sdvnum=0;
+retain sdvznumto  sdvnumto ;
+if _n_=1 then sdvznumto=sdvznum;
+else sdvznumto=sdvznumto+sdvznum;
+if _n_=1 then sdvnumto =sdvnum;
+else sdvnumto =sdvnumto+sdvnum;
+sdvrateto=round(sdvnumto/sdvznumto*100,0.0001);
+if last=1;
+call symputx('sdvrateto',sdvrateto);
+run;
+
+
+
+data edc.EDC_metrics;
+merge edc_metrics metrics2;
+if dw="" then do; dw="合计";
+zsq=round(zs1/zs*100,0.01);
+sdvrate=&sdvrateto;
+zyrate=round(zynum1/zynum*100,0.0001);
+pirate=.;
+end;
+run;
+data out.l1(label='EDC进展报告'); set edc.EDC_metrics; run;
