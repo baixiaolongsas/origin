@@ -30,10 +30,10 @@ proc datasets lib=work nolist kill; run;
 %let visit=visit;/*访视阶段的变量名，是否有的项目的该变量名为svstage？*/
 %let visitnum=visitnum; /*访视序号的变量名，是否有的项目的该变量名为其他的？*/
 %let visdat=visdat;/*访视日期的变量名，是否有的项目叫svstdat？*/
-%let specialvisit='生存随访','C8后访视';
-%let ds1=ds1;/*治疗结束页名称，是否有项目会有多个治疗结束页，需要确定用哪个*/
-%let novisdat='共同页','计划外访视','研究治疗结束/退出研究'; /*有的项目不统计计划外*/
-
+%let specialvisit='生存随访','C4后访视';
+%let ds1=ds;
+/*治疗结束页名称，是否有项目会有多个治疗结束页，需要确定用哪个*/
+%let novisdat='共同页','治疗结束/退出','治疗结束页',''; /*有的项目不统计计划外*/
 
 
 data subject;
@@ -62,88 +62,17 @@ proc sort data=subject_visit_crfnum;by subjid visitid;run;
 
 /*对于动态访视重新计算时间窗，对于非动态访视直接用sfzqb*/
 /*主要修改此处*/
-/**/
-/**/
-/**/
-/*固定访视窗*/
-/*data sfzqb;*/
-/*	set edc.sfzqb(keep=subjid open close bm);*/
-/*	visitid=bm;*/
-/*	drop bm;*/
-/*run;*/
-/**/
 
-/*动态访视窗*/
-proc sql;
-	create table sv_sfzqb(drop=bm rename=(bm_1=bm)) as select b.&visdat.,a.*,input(bm,best.) as bm_1 from edc.sfzqb as a left join derived.sv as b on a.subjid=b.subjid and a.bm=b.&visitnum.;
-quit;
-
-
-proc sort;by subjid bm;run;
-data sfzqb2;
-	length dat 8.;
-	set sv_sfzqb;
-	if bm=>3 and open ne . then 
-	dat=lag(input(&visdat.,yymmdd10.));
-	
-	if bm=3 then dat = .;
-
-
-	format dat  yymmdd10.;
-run;
-
-proc sql;
-	create table sfzqb2_1 as select distinct subjid,max(dat) as dat2,max(bm) as bm2 from sfzqb2 where dat ne . group by subjid;
-	create table sfzqb3 as select a.*,dat2 format yymmdd10.,bm2 from sfzqb2 as a left join sfzqb2_1 as b on a.subjid =b.subjid;
-quit;
-proc sort;by subjid bm;run;
-
-data sfzqb4;
-	length dat3 8.;
-
-	set sfzqb3;
-	
-	if open ne .  then dat3=dat2+14*abs(bm-bm2);
-	format dat3 yymmdd10.;
-run;
+/*本项目使用不适用sfzqb*/
 
 
 
-data sfzqb5;
-
-	set sfzqb4;
-	if &visdat. = '' and dat =. then
-	dat=dat3;
-	if dat ne . then do;
-	open1=dat+11;
-	close1=dat+17;
-	end;
-
-	if open ne . and open1 ne . then  open =open1 ;
-	if open ne . and open1 ne . then  close =close1 ;
-	format open1 close1 dat  yymmdd10.;
-run;
 
 
-
-data sfzqb;
-	set sfzqb5(keep=subjid bm open close);
-	visitid=left(put(bm,best.));
-	drop bm;
-	if open ne . and close ne .;
-run;
-proc sort data=sfzqb;by subjid visitid;run;
-
-
-
-data subject_sfzqb;
-	merge subject_visit_crfnum(in=a) sfzqb;
-	by subjid visitid;
-	if a;
-run;
 /*剔除循环访视*/
 data subject_sfzqb_select;
-	set subject_sfzqb;
+/*	set subject_sfzqb;*/
+	set subject_visit_crfnum;
 	if visitname not in (&specialvisit.);
 run;
 data sv;
@@ -172,10 +101,11 @@ run;
 /*找到患者的治疗结束访视以及最后用药时间,如果有人没有用药就用研究结束日期，或者死亡日期，之中选一个最小的  */
 /*																									*/
 /*					此处应按项目修改																	*/
-/*																									*/
+/**/
+
 data sv_last;
 	set sv;
-	if compress(&visit.)='研究治疗结束/退出研究';
+	if compress(&visit.)='治疗结束/退出';
 
 	label &visdat.='退出前访视日期';
 	keep subjid &visdat.;
@@ -200,16 +130,20 @@ data dth;
 proc sort;by subjid;run;
 
 data sv_last_ds1_ds;
-	merge sv_last ds1 ds dth;
+	merge sv_last ds1 dth
+/*ds */
+;
 	by subjid;
+	
 run;
 
 data lastdat;
 	set sv_last_ds1_ds;
-	lastdat=min(input(lasexdat,yymmdd10.),input(&visdat.,yymmdd10.),input(dsdat,yymmdd10.),input(dthdat,yymmdd10.));
+/*	lastdat=min(input(lasexdat,yymmdd10.),input(&visdat.,yymmdd10.),input(dsdat,yymmdd10.),input(dthdat,yymmdd10.));*/
+	lastdat=min(input(dsdat,yymmdd10.),input(dthdat,yymmdd10.));
 	format lastdat yymmdd10.;
-	label lastdat='最小退出/给药日期';
-	keep subjid lastdat;
+	label lastdat='研究结束日期';
+/*	keep subjid lastdat;*/
 run;
 proc sort data=subject_sv_svworkflow;by subjid;run;
 data prefinal;
@@ -229,8 +163,13 @@ run;
 
 data prefinal_1_1;
 	set prefinal_1;
-	if lastdat ne . and crfnum1=.;
+	if dsdat ne . and crfnum1=.;
+
+	open=.;close=.;day=.;
+	keep  studyid siteid subjid status visitname  visitid open close day;;
 run;
+
+
 
 data prefinal_2_1;
 	set prefinal_2;
@@ -238,34 +177,83 @@ data prefinal_2_1;
 run;
 proc sort data=prefinal_2_1 ;by subjid descending visitnum;run;
 
+/*jin yanhong 添加访视窗要求*/
+proc sql;
+create table presfzqb as 
+select 
+a.*, input(b.visdat,yymmdd10.) as visdat2 "C1D1访视日期" format yymmdd10.,input(c.visdat,yymmdd10.)  as visdat9 "治疗结束/退出访视日期" format yymmdd10.,
+input(d.visdat,yymmdd10.) as visdat4 "C2D1访视日期" format yymmdd10.,input(e.visdat,yymmdd10.) as visdat6 "C3D1访视日期" format yymmdd10.,
+input(f.visdat,yymmdd10.) as visdatl "上一访视日期" format yymmdd10.,
+g.crfnum1 as crfnumn "下一访视CRF数量"
+from prefinal_2_1 as a
+left join derived.sv as b on a.subjid=b.subjid and b.visitnum="2"
+left join derived.sv as c on a.subjid=c.subjid and c.visitnum="9"
+left join derived.sv as d on a.subjid=d.subjid and d.visitnum="4"
+left join derived.sv as e on a.subjid=e.subjid and e.visitnum="6"
+left join derived.sv as f on a.subjid=f.subjid and input(f.visitnum,best.)=a.visitnum-1
+left join prefinal_2_1  as g on a.subjid=g.subjid and g.visitnum=a.visitnum+1
+;
+quit;
 
-data prefinal_2_2;
-	set prefinal_2_1(where=(lastdat>close or lastdat=.));
-/*	if &visdat. ne '' then visdat_=lag(&visdat.);*/
-	visdat_=lag(&visdat.);
-	by subjid descending visitnum;
-	if first.subjid then visdat_='';
-	if (visdat_ ne '' or (close ne . and  today()-close >=15)) and crfnum1 = .;
+data prefinal_sfzqb;
+set presfzqb;
+format open yymmdd10.  close yymmdd10.;
+if visitnum=1 then do;open=visdat2-14;close=visdat2;end;
+if visitnum=11 then do;open=visdat9+23;close=visdat9+37;end;
+if visitnum=4 then do;open=visdat2+12;close=visdat2+37;end;
+if visitnum=6 then do;open=visdat4+12;close=visdat4+37;end;
+if visitnum in(3,5,7)  then do;open=visdatl+12;close=visdatl+16;end;
+/*if visitnum in(2,4,6)  then do;open2=visdatl;close2=visdatl;end;*/
+/*if visitnum in (4,6) then do;close=min(close1,close2);end;*/
 run;
-
-proc sort ;by subjid visitnum;run;
-
-
-
-
-
 
 data edc.visitmiss;
-	retain studyid siteid subjid status visitname visitnum visitid open close day;
-	set prefinal_2_2 prefinal_1_1;
-	if ^missing(open)  then 
-	day=today()-open;
-	else day=.;
-	visitnum=input(visitid,best.);
-	keep studyid siteid subjid status visitname visitnum visitid open close day;
-	label day ='访视缺失据今天数';
+	set prefinal_sfzqb ;
+	if crfnum1=. and ((close ^=. and today()>close ) /*OR  crfnumn ne .*/);
+    day=today()-close;
+	label day="距今天数";
+	keep studyid siteid subjid status visitname  visitid open close day;;
 run;
-proc sort data=edc.visitmiss;by subjid visitname;run;
+
+data edc.visitmiss;
+	set edc.visitmiss prefinal_1_1;
+run;
+
+/*proc sort data=prefinal_sfzqb ;by subjid descending visitnum;run;*/
+/**/
+/*data prefinal_2_2;*/
+/*	set prefinal_sfzqb(where=( lastdat>close  or lastdat=.));*/
+/*	 visdat_=lag(&visdat.); */
+/*	by subjid descending visitnum;*/
+/*	if first.subjid then visdat_='';*/
+/*	if (visdat_ ne '' or (close ne . and  today()-close >=15)) and crfnum1 = .;*/
+/*run;*/
+/**/
+/*proc sort ;by subjid visitnum;run;*/
+/**/
+/**/
+/**/
+/**/
+/**/
+/*data edc.visitmiss;*/
+/*	retain studyid siteid subjid status visitname visitnum visitid open close day;*/
+/*	set prefinal_2_2 prefinal_1_1;*/
+/*	if ^missing(open)  then */
+/*	day=today()-open;*/
+/*	else day=.;*/
+/*	visitnum=input(visitid,best.);*/
+/*	keep studyid siteid subjid status visitname visitnum visitid open close day;*/
+/*	label day ='访视缺失据今天数';*/
+/*run;*/
+/*proc sort data=edc.visitmiss;by subjid visitname;run;*/
+
+/*data a;*/
+/*subjid="暂无数据";*/
+/*run;*/
+/*data edc.visitmiss;*/
+/*merge a edc.visitmiss ;*/
+/*run;*/
+/**/
 
 
 proc sql;
@@ -277,4 +265,6 @@ group by siteid;
 quit;
 
 
-data out.l2(label='访视缺失汇总'); set edc.visitmiss; run;
+data out.l2(label="访视缺失汇总") ;set edc.visitmiss;run;
+
+

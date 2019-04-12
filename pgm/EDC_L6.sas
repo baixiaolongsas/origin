@@ -44,7 +44,7 @@ quit;
 proc sql;
 	select count(*) into:dnum from DICTIONARY.TABLES
                 where libname = "DERIVED" ;
- quit;
+quit;
 %put &dnum;
 %do i=1 %to &dnum;
 	   proc sql noprint;
@@ -93,6 +93,8 @@ data pre;
 run;
 proc datasets lib=work ;delete pre_:;run;
 proc sort;by pub_tname pub_rid siteid subjid ;quit;
+
+/*子表的二级子表父记录*/
 data select_detail_tid;
 	length pub_tname $100.;
 	set edc.hchzb(keep=bmc ejzbfjl where=(ejzbfjl is not null));
@@ -101,6 +103,7 @@ data select_detail_tid;
 run;
 proc sort nodupkeys;by pub_tname;run;
 
+/*父表*/
 data selected;
 	merge pre select_detail_tid(in=b);
 	by pub_tname;
@@ -151,6 +154,4 @@ proc sql;
 	create table zsview1 as select siteid,count(pub_rid) as zs1 '未提交页数' from prefinal group by siteid;
 	create table EDC.zsview as select a.*,coalesce(left(compress(put(b.zs1,best.),'.')),'0') as zs1 '未提交页数' from zsview as a left join zsview1 as b on a.siteid=b.siteid;
 quit;
-
-
-data out.l7(label='未提交页面汇总'); set  EDC.unsub; run;
+data out.l6(label="未提交页面汇总") ;set edc.unsub;run;

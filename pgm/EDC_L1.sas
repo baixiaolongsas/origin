@@ -2,7 +2,7 @@
 CODE NAME                 : <alltoexcel.sas>
 CODE TYPE                 : <SHR_1210 >
 DESCRIPTION               : <数据导出> 
-SOFTWARE/VERSION#         : <SAS 9.4>
+SOFTWARE/VERSION#         : <SAS 9.3>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
@@ -26,10 +26,11 @@ dm log 'clear';
 proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
 proc sql;
-	create table hchzb_sum as select input(jl,best.) as jl,yhczdsly 'CRA已核查字段数量',xhczdzsl 'CRA需核查字段数量' from edc.hchzb where xhczdzsl>yhczdsly;
+	create table hchzb_sum as select tid,input(jl,best.) as jl,yhczdsly 'CRA已核查字段数量',xhczdzsl 'CRA需核查字段数量' from edc.hchzb where input(xhczdzsl,best.)>input(yhczdsly,best.);
 quit;
- proc format library=RAW cntlout=work.cntlfmt;quit;
- proc sort data=cntlfmt(keep=FMTNAME LENGTH) nodupkeys out=fmt;by _all_;run;
+proc format library=RAW cntlout=work.cntlfmt;quit;
+proc sort data=cntlfmt(keep=FMTNAME LENGTH) nodupkeys out=fmt;by _all_;run;
+
 %macro formatall;
 data vstable;
 	set sashelp.vstable(where=(libname='RAW' and memname ne 'ID'));
@@ -104,7 +105,9 @@ run;
 	run;
 		
 	proc sql;
-		create table final1_&name.(drop=jl) as select b.*,a.* from final_&name. as a left join hchzb_sum as b on input(scan(COL3,2,':'),best.)=b.jl where b.jl ne . ;
+		create table final1_&name.
+(drop=jl) 
+as select b.*,a.* from final_&name. as a left join hchzb_sum as b on input(scan(COL3,2,':'),best.)=b.jl where b.jl ne . ;
 	quit;
 %end;
 
@@ -143,7 +146,7 @@ DATA abs_final;
 	length x $4000;
 	x=catx('|',of COL:);
 	length=length(compress(x,'|','k'));
-	keep tid siteid subjid lockstat sitename   visit visitnum svnum yhczdsly xhczdzsl creator createtime modify modifytime WARNING x length;
+	keep tid siteid subjid lockstat sitename   visit visitnum svnum  yhczdsly xhczdzsl creator createtime modify modifytime WARNING x length;
 run;
 proc sql;
 	select max(length) into:cut from abs_final;
@@ -171,12 +174,32 @@ run;
 
 
 proc sql;
-	create table EDC.sdvnumview as select siteid,(sum(input(hchzb.xhczdzsl,best.))-sum(input(hchzb.yhczdsly,best.))) as sdvnum '未SDV字段数',sum(input(hchzb.xhczdzsl,best.)) as sdvznum '需SDV字段数',
-	round(sum( input(hchzb.xhczdzsl,best.)-input(hchzb.yhczdsly,best.))/sum(input(hchzb.xhczdzsl,best.))*100,0.0001) as sdvrate '未SDV百分率(%)' from EDC.hchzb 
-	left join EDC.spjlb spjlb on spjlb.jl=COALESCE(hchzb.ejzbfjl,hchzb.jl,) and spjlb.dqzt NE '00'  
-	left join DERIVED.subject subject on subject.pub_rid=COALESCE(hchzb.fzbdrkbjl,hchzb.jl) where dqzt is not null and subject.siteid is not null 
-	 group by subject.siteid ;
+create table edc.sdvnumview1 as
+select 
+subject.siteid as siteid,
+sum(input(hchzb.xhczdzsl,best.)) as sdvznum '需SDV字段数'
+from edc.hchzb 
+left join derived.subject subject on subject.pub_rid=COALESCEc(hchzb.fzbdrkbjl,hchzb.jl)
+left join edc.spjlb spjlb on (spjlb.jl=hchzb.jl or spjlb.jl=hchzb.ejzbfjl) and spjlb.dqzt ^= '00' 
+where   hchzb.xhczdzsl is not null and (spjlb.lastmodifytime is not null) or  (hchzb.tid='subject' and (subject.lockstat ^='00' or subject.lockstat is not null)) 
+group by subject.siteid 
+;
 quit;
 
-data out.l4(label='CRA未核查页明细'); set edc.unsdv_cra; run;
 
+proc sql;
+	create table EDC.sdvnumview2 as select 
+siteid,(sum(input(hchzb.xhczdzsl,best.))-sum(input(hchzb.yhczdsly,best.))) as sdvnum '未SDV字段数'
+from EDC.unsdv_cra as hchzb
+	
+   group by siteid ;
+quit;
+
+data EDC.sdvnumview;
+merge EDC.sdvnumview1 EDC.sdvnumview2;
+by siteid ;
+sdvrate=round(sdvnum/sdvznum*100,0.0001) ;
+label sdvrate='未SDV百分率(%)';
+run;
+ 
+data out.l4(label="CRA未核查页明细") ;set edc.unsdv_cra;run;

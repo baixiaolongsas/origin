@@ -26,7 +26,7 @@ dm log 'clear';
 proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
 proc sql;
-	create table hchzb_sum as select input(jl,best.) as jl,yhczdsls 'MED已核查字段数量',xhczdzsls 'MED需核查字段数量' from edc.hchzb where xhczdzsls>yhczdsls;
+	create table hchzb_sum as select input(jl,best.) as jl,yhczdsls 'MED已核查字段数量',xhczdzsls 'MED需核查字段数量' from edc.hchzb where input(xhczdzsls,best.)>input(yhczdsls,best.);
 quit;
  proc format library=RAW cntlout=work.cntlfmt;quit;
  proc sort data=cntlfmt(keep=FMTNAME LENGTH) nodupkeys out=fmt;by _all_;run;
@@ -167,6 +167,6 @@ data edc.unsdv_MED;
 	if lockstat ne '未提交';
 	drop x length WARNING creator createtime modify ;
 run;
+data out.l5(label="MED未核查页明细") ;set edc.unsdv_MED;run;
 
-data out.l6(label='MED未核查页明细'); set edc.unsdv_MED; run;
 
