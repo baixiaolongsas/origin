@@ -15,12 +15,20 @@ ASSUMPTIONS               : <	>
 --------------------------------------------------------------------------------
 REVISION HISTORY SECTION:
  Author & baixiaolong
+
+1.数据集缺少死亡记录表
+2.缺少PD后揭盲情况表
 	
 Ver# Peer Reviewer        Code History Description
 ---- ----------------     ------------------------------------------------
 01		
 **eoh**********************************************************************************/;
-%include '.\GET_DATA.sas' ;
+
+dm log 'clear';
+proc datasets lib=work nolist kill; run;
+%include '..\init\init.sas' ;
+
+%include '.\GET_DATA.sas';
 
 %include '..\pgm\EDC_L1.sas';
 /*%include '..\pgm\EDC_L2.sas';*/

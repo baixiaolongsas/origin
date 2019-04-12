@@ -14,7 +14,8 @@ ASSUMPTIONS               : <	>
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 REVISION HISTORY SECTION:
- Author & xwei
+ Author & bxl
+
 	
 Ver# Peer Reviewer        Code History Description
 ---- ----------------     ------------------------------------------------
@@ -114,11 +115,20 @@ run;
 data sv_last;
 	set sv;
 	if compress(&visit.) in ('治疗完成_退出' '研究总结页');
-
 	label &visdat.='退出前访视日期';
 	keep subjid &visdat.;
 run;
 proc sort;by subjid;run;
+
+data sv_last1;
+	set sv;
+	if compress(&visit.)= '研究总结页';
+	rename &visdat.=visits;
+	label &visdat.='研究总结页访视日期';
+	keep subjid &visdat.;
+run;
+proc sort;by subjid;run;
+
 
 /************************************无dth数据集*****************************************************/
 /*双盲期治疗结束日期*/
@@ -138,10 +148,26 @@ proc sort;by subjid;run;
 /*开放期治疗结束日期*/
 data ds2;
 	set derived.Eot_otoz;
-	keep subjid eotdat;
+	keep subjid eotdat eotreas;
 	where eotcat='SHR1210';
 run;
 proc sort;by subjid;run;
+
+/*卡铂治疗结束日期*/
+data ds3;
+	set derived.Eot;
+	keep subjid eotdat;
+	where eotcat='卡铂';
+run;
+proc sort;by subjid;run;
+/*紫杉醇治疗结束日期*/
+data ds4;
+	set derived.Eot;
+	keep subjid eotdat ;
+	where eotcat='紫杉醇';
+run;
+proc sort;by subjid;run;
+
 /*安全性随访*/
 data sv_safe;
 	set sv;
@@ -199,14 +225,23 @@ data lastdat2;
 	else if exstdat ne '' and lastdat > input(exstdat,yymmdd10.) then lastdat2=lastdat;
 	format lastdat2 yymmdd10.;
 	label lastdat2='开放期最小退出/给药日期';
-	keep subjid lastdat2 eotdat dsterm;
+	keep subjid lastdat2 eotdat dsterm eotreas;
 run;
+
+/*找到最晚治疗结束日期*/
+data ds1234; set ds1 ds2 ds3 ds4; run;
+proc sort; by subjid eotdat; run;
+data ds1_4; set ds1234; by subjid; if last.subjid; rename eotdat=eotdat1_4; label eotdat='最晚治疗结束日期'; drop eotreas; run;
+
+
+
+
 /************************************无dth数据集*****************************************************/
 
 /*判断访视缺失*/
 proc sort data=subject_sv_svworkflow;by subjid;run;
 data prefinal;
-	merge subject_sv_svworkflow lastdat1 lastdat2 sv_safe;
+	merge subject_sv_svworkflow lastdat1 lastdat2 sv_safe ds1_4 sv_last1;
 	by subjid;
 	if visitname not in (&novisdat.) then do;
 	  if find(visitname,'S') ne 0 or visitname='开放期肿瘤影像学' then lastdat=lastdat2;
@@ -229,6 +264,18 @@ data prefinal_1_1;
 	if visitname in ('共同页','安全性随访','生存随访','治疗结束页') and dsterm ne '' and crfnum1=. then output;
     if visitname='治疗完成_退出' and finish ne '' and crfnum1=. then output;
 run;
+
+
+/***************************************暂无PD后揭盲情况表，无法判断交叉入组筛选页****************************************/
+data prefinal_1_1;
+	set prefinal_1_1;
+	if visitname ='交叉入组筛选' then delete;
+    if visitname='治疗完成_退出' and eotreas = '失访' then delete;
+    if visitname='安全性随访' and input(visits, yymmdd10.)-input(eotdat1_4, yymmdd10.)<=37 then delete;
+    if visitname='生存随访' and input(visits, yymmdd10.)-input(eotdat1_4, yymmdd10.)<=104 then delete;
+run;
+/***************************************暂无PD后揭盲情况表，无法判断交叉入组筛选页****************************************/
+
 
 /*prefinal_2_1双盲期   prefinal_2_2开放期*/
 data prefinal_2_1 prefinal_2_2;

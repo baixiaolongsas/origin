@@ -36,16 +36,6 @@ proc datasets lib=work nolist kill; run;
 
 
 
-
-
-
-
-
-
-
-
-
-
 /*筛选出费筛选失败病例*/
 proc sort data=derived.subject out=subject(keep=studyid siteid subjid pub_rid status where=(status ne "筛选失败"));by studyid pub_rid subjid;run;
 proc sort data=edc.visittable out=visittable(keep=studyid visitname visitid domain dmname svnum);by studyid;run;
@@ -79,9 +69,6 @@ data sub_v_sv_hc;
 run;
 /*去除已选择未采集的crf*/
 
-
-
-
 data uncollect;
 	length svnum $20;
 	set derived.uncollect(keep=recordid svnum visitnum visitnum tableid status where=(status='已确认') rename=(svnum=svnum1));
@@ -105,7 +92,41 @@ run;
 
 /*连接试验数据治疗结束页，已判断是否治疗完成*/
 
-/***********************************************无ds1数据集  用ds来代替*******************************************************/
+/*********************************************** 用研究总结页来代替治疗结束页*******************************************************/
+/*双盲期治疗结束日期*/
+data ds1;
+	set derived.Eot_otoz;
+	keep subjid eotdat;
+	where eotcat='SHR1210/安慰剂';
+run;
+proc sort;by subjid;run;
+/*开放期治疗结束日期*/
+data ds2;
+	set derived.Eot_otoz;
+	keep subjid eotdat eotreas;
+	where eotcat='SHR1210';
+run;
+proc sort;by subjid;run;
+/*卡铂治疗结束日期*/
+data ds3;
+	set derived.Eot;
+	keep subjid eotdat;
+	where eotcat='卡铂';
+run;
+proc sort;by subjid;run;
+/*紫杉醇治疗结束日期*/
+data ds4;
+	set derived.Eot;
+	keep subjid eotdat ;
+	where eotcat='紫杉醇';
+run;
+proc sort;by subjid;run;
+/*找到最晚治疗结束日期*/
+data ds1234; set ds1 ds2 ds3 ds4; run;
+proc sort; by subjid eotdat; run;
+data ds1_4; set ds1234; by subjid; if last.subjid; rename eotdat=eotdat1_4; label eotdat='最晚治疗结束日期'; drop eotreas; run;
+
+
 data ds1;
 	set derived.&ds1.(keep=subjid  pub_tid);
 	rename pub_tid=ds1;
@@ -114,12 +135,13 @@ proc sort data=ds1;by subjid;run;
 
 
 proc sql;
-	create table sub_ds1 as select a.*,b.ds1 from sub_uncollect as a left join ds1 as b on a.subjid=b.subjid;
+	create table sub_ds1 as select a.*,b.ds1,c.eotdat1_4 from sub_uncollect as a left join ds1 as b on a.subjid=b.subjid
+      left join ds1_4 as c on a.subjid=c.subjid;
 quit;
 
 /*缩减版程序*/
 /*data sub_ds1; set sub_uncollect;run; */
-/***********************************************无ds1数据集  用ds来代替*******************************************************/
+/***********************************************用研究总结页来代替治疗结束页*******************************************************/
 
 /*区分有访视日期的，与无访视日期的访视*/
 data prefinal1 prefinal_1;
@@ -164,6 +186,9 @@ data edc.crfmiss;
 	if ^missing(&visdat.)  then 
 	day=today()-input(&visdat.,yymmdd10.);
 	visitnum=input(visitid,best.);
+	if visitname='共同页' and dmname in ('首次PD后继续治疗' 'PD后揭盲情况') then delete;
+    if visitname in ('计划外访视' '治疗完成_退出') then delete;
+	if dmname='电话随访' and (input(&visdat.,yymmdd10.)-input(eotdat1_4,yymmdd10.)<=60 or today()-input(&visdat.,yymmdd10.)<=15) then delete;
 	keep studyid siteid subjid status visitname visitnum dmname &visdat. day;
 	label day ='页面缺失据今天数';
 	where status ne '筛选中';
