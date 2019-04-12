@@ -1,13 +1,13 @@
 /*soh**********************************************************************************
-CODE NAME                 : <alltoexcel.sas>
-CODE TYPE                 : <SHR_1210 >
-DESCRIPTION               : <数据导出> 
-SOFTWARE/VERSION#         : <SAS 9.3>
+CODE NAME                 : <EDC_L3.sas>
+CODE TYPE                 : <     >
+DESCRIPTION               : <MED未核查明细> 
+SOFTWARE/VERSION#         : <SAS 9.4>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
-INPUT                     : < bioknow 1.0>
-OUTPUT                    : < 结果.xml  >
+INPUT                     : <   >
+OUTPUT                    : <   >
 VALIDATION LEVEL          : <	>
 REQUIREMENTS              : <	>
 ASSUMPTIONS               : <	>
@@ -18,13 +18,13 @@ REVISION HISTORY SECTION:
 	
 Ver# Peer Reviewer        Code History Description
 ---- ----------------     ------------------------------------------------
-01		Weixin				2016-7-25
+01		Weixin				2018-10-16
 **eoh**********************************************************************************/;
-
-
-dm log 'clear';
-proc datasets lib=work nolist kill; run;
-%include '..\init\init.sas' ;
+/**/
+/**/
+/*dm log 'clear';*/
+/*proc datasets lib=work nolist kill; run;*/
+/*%include '..\init\init.sas' ;*/
 proc sql;
 	create table hchzb_sum as select input(jl,best.) as jl,yhczdsls 'MED已核查字段数量',xhczdzsls 'MED需核查字段数量' from edc.hchzb where xhczdzsls>yhczdsls;
 quit;
@@ -168,5 +168,7 @@ data edc.unsdv_MED;
 	drop x length WARNING creator createtime modify ;
 run;
 
-data out.l6(label='MED未核查页明细'); set edc.unsdv_MED; run;
 
+data out.L5(label='MED未核查页明细');
+set edc.unsdv_MED;
+run;

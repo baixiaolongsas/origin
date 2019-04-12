@@ -1,13 +1,13 @@
 /*soh**********************************************************************************
-CODE NAME                 : <alltoexcel.sas>
-CODE TYPE                 : <SHR_1210 >
-DESCRIPTION               : <数据导出> 
+CODE NAME                 : <   >
+CODE TYPE                 : <   >
+DESCRIPTION               : <CRA未sdv> 
 SOFTWARE/VERSION#         : <SAS 9.4>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
-INPUT                     : < bioknow 1.0>
-OUTPUT                    : < 、 >
+INPUT                     : <   >
+OUTPUT                    : <   >
 VALIDATION LEVEL          : <	>
 REQUIREMENTS              : <	>
 ASSUMPTIONS               : <	>
@@ -18,13 +18,13 @@ REVISION HISTORY SECTION:
 	
 Ver# Peer Reviewer        Code History Description
 ---- ----------------     ------------------------------------------------
-01		Weixin				2016-7-25
+01		Weixin				2018-09-26
 **eoh**********************************************************************************/;
 
-
-dm log 'clear';
-proc datasets lib=work nolist kill; run;
-%include '..\init\init.sas' ;
+/**/
+/*dm log 'clear';*/
+/*proc datasets lib=work nolist kill; run;*/
+/*%include '..\init\init.sas' ;*/
 proc sql;
 	create table hchzb_sum as select input(jl,best.) as jl,yhczdsly 'CRA已核查字段数量',xhczdzsl 'CRA需核查字段数量' from edc.hchzb where xhczdzsl>yhczdsly;
 quit;
@@ -162,12 +162,30 @@ run;
 %mend;
 %test;
 
-data edc.unsdv_cra;
-	set abs_final;
-	if lockstat ne '未提交';
-	drop x length WARNING creator createtime modify ;
-run;
 
+proc sql;
+create table visit_num as
+select distinct studyid,visitname,visitid from edc.visittable
+order by visitid
+;
+
+create table abs_final_pre as
+select b.visitname,a.* from abs_final a
+left join  visit_num b on a.visit=b.visitid
+order by a.subjid,a.visit
+;
+quit;
+
+
+data edc.unsdv_cra;
+retain sitename siteid subjid tid lockstat;
+set abs_final_pre;
+date=datepart(input(modifytime,datetime.));
+dif=today()-date;
+if lockstat ne '未提交';
+label dif='未sdv距今天数';
+drop x length WARNING creator createtime modify date visit;
+run;
 
 
 proc sql;
@@ -178,5 +196,8 @@ proc sql;
 	 group by subject.siteid ;
 quit;
 
-data out.l4(label='CRA未核查页明细'); set edc.unsdv_cra; run;
 
+
+data out.L4(label='CRA未核查页明细');
+set edc.unsdv_cra;
+run;
