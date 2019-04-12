@@ -30,9 +30,9 @@ proc datasets lib=work nolist kill; run;
 %let visit=visit;/*访视阶段的变量名，是否有的项目的该变量名为svstage？*/
 %let visitnum=visitnum; /*访视序号的变量名，是否有的项目的该变量名为其他的？*/
 %let visdat=visdat;/*访视日期的变量名，是否有的项目叫svstdat？*/
-%let specialvisit='生存随访','C8后访视';
-%let ds1=ds1;/*治疗结束页名称，是否有项目会有多个治疗结束页，需要确定用哪个*/
-%let novisdat='共同页','计划外访视'; /*有的项目不统计计划外*/
+%let specialvisit='生存随访','计划外访视','安全性随访1','安全性随访2','肿瘤进展随访','共同页';
+%let ds1=eot;/*治疗结束页名称，是否有项目会有多个治疗结束页，需要确定用哪个*/
+%let novisdat='妊娠记录'; /*有的项目不统计计划外*/
 
 
 
@@ -150,7 +150,7 @@ data edc.crfmiss;
 	day=today()-input(&visdat.,yymmdd10.);
 	visitnum=input(visitid,best.);
 	keep studyid siteid subjid status visitname visitnum dmname &visdat. day;
-	label day ='页面缺失据今天数';
+	label day ='页面缺失距今天数';
 run;
 proc sort data=edc.crfmiss;by subjid visitnum;run;
 
@@ -163,4 +163,4 @@ count(*) as qscrf '页面缺失数' from edc.crfmiss qscrfview group by qscrfview.sit
 quit;
 
 
-data out.l3; set edc.crfmiss(label='页面缺失汇总'); run;
+data out.l3(label='页面缺失汇总'); set edc.crfmiss; run;
