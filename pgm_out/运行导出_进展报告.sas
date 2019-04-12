@@ -24,14 +24,16 @@ dm log 'clear';
 proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
 
-%include '..\pgm\EDC_L1.sas';
-%include '..\pgm\EDC_L2.sas';
-%include '..\pgm\EDC_L3.sas';
-%include '..\pgm\EDC_L4.sas';
-%include '..\pgm\EDC_L5.sas';
-%include '..\pgm\EDC_L6.sas';
-%include '..\pgm\EDC_L7.sas';
-%include '..\pgm\EDC_L8.sas';
+%include '.\GET_DATA.sas';
 
+%include '..\pgm\BASE.sas';
+%include '..\pgm\质疑明细.sas';
+%include '..\pgm\访视缺失.sas';
+%include '..\pgm\页面缺失.sas';
+%include '..\pgm\未sdv页面_CRA.sas';
+%include '..\pgm\未提交页面.sas';
+%include '..\pgm\EDC进展报告.sas';
 
-%m_exportxlsx(title=进展报告,creator=白小龙);
+options fmtsearch=(work raw derived edc) nofmterr;
+
+%m_exportxlsx(title=进展报告,creator=史硕);
