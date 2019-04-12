@@ -21,7 +21,11 @@ Ver# Peer Reviewer        Code History Description
 01		
 **eoh**********************************************************************************/;
 
-%include '.\GET_DATA.sas' ;
+dm log 'clear';
+proc datasets lib=work nolist kill; run;
+%include '..\init\init.sas' ;
+
+%include '.\GET_DATA.sas';
 
 %include '..\pgm\DC_L1.sas';
 %include '..\pgm\DC_L2.sas';
