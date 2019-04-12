@@ -25,8 +25,15 @@ Ver# Peer Reviewer        Code History Description
 dm log 'clear';
 proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
+
+data edc.hchzb3;
+   set edc.hchzb;
+if input(yhczdsls,best.) gt input(xhczdzsls,best.) then yhczdsls=left(min(yhczdsls,xhczdzsls));
+run;
+
+
 proc sql;
-	create table hchzb_sum as select input(jl,best.) as jl,yhczdsls 'MED已核查字段数量',xhczdzsls 'MED需核查字段数量' from edc.hchzb where xhczdzsls>yhczdsls;
+	create table hchzb_sum as select input(jl,best.) as jl,yhczdsls 'MED已核查字段数量',xhczdzsls 'MED需核查字段数量' from edc.hchzb3 where xhczdzsls>yhczdsls;
 quit;
  proc format library=RAW cntlout=work.cntlfmt;quit;
  proc sort data=cntlfmt(keep=FMTNAME LENGTH) nodupkeys out=fmt;by _all_;run;
@@ -78,10 +85,10 @@ run;
 		else if NAME='modifyuserid' then N=17;
 		else if NAME='lastmodifytime' then N=18;
 		else if NAME='sn' then N=19;
-		else if name='lbcat' then N=20;
-		else if find(NAME,'dat') then N=20+VARNUM;
 		
-
+			else if NAME='sn1' then N=20;
+		else if name='lbcat' then N=21;
+		else if find(NAME,'dat') then N=22+VARNUM;
 	run;
 	proc sort;by N;run;
 
@@ -168,5 +175,5 @@ data edc.unsdv_MED;
 	drop x length WARNING creator createtime modify ;
 run;
 
-data out.l6; set edc.unsdv_MED(label='MED未核查页明细'); run;
+data out.l6(label='MED未核查页明细'); set edc.unsdv_MED; run;
 

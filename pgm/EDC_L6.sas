@@ -30,6 +30,20 @@ proc datasets lib=work nolist kill; run;
 %let visitnum=visitnum; /*访视序号的变量名，是否有的项目的该变量名为其他的？*/
 %let visdat=visdat;/*访视日期的变量名，是否有的项目叫svstdat？*/;
 
+data derived.prc12;
+  set derived.prc12;
+drop prcdat prcdtim;
+run;
+
+data derived.mha;
+  set derived.mha;
+  drop mhatype;
+run;
+
+
+
+
+
 data sv;
 	set derived.sv;
 	keep subjid &visit &visitnum &visdat;
@@ -133,10 +147,11 @@ proc sort data=dat ;by pub_rid;run;
 proc sort data=selected out=selected(where=(lockstat='未提交'));by pub_rid;run;
 
 proc sql;
-	create table prefinal as select a.*,b.sn,c.dat,status,icfdat from selected as a 
+	create table prefinal as select a.*,b.sn,c.dat,d.status,e.icfdat from selected as a 
 		left join sn b on compress(a.pub_rid)=compress(b.pub_rid)
 			left join dat as c on compress(a.pub_rid)=compress(c.pub_rid)
-				left join derived.subject as d on a.subjid=d.subjid;
+				left join derived.subject as d on a.subjid=d.subjid
+                   left join derived.dm as e on a.subjid=e.subjid;
 quit;
 
 data EDC.unsub;
@@ -152,5 +167,4 @@ proc sql;
 	create table EDC.zsview as select a.*,coalesce(left(compress(put(b.zs1,best.),'.')),'0') as zs1 '未提交页数' from zsview as a left join zsview1 as b on a.siteid=b.siteid;
 quit;
 
-
-data out.l7; set  EDC.unsub(label='未提交页面汇总'); run;
+data out.l7(label='未提交页面汇总'); set  EDC.unsub; run;

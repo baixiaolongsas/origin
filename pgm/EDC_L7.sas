@@ -91,6 +91,7 @@ sitename as sitename,
 count(*) as jlcount '总数',
 sum(case when status='筛选中' then 1 else 0 end) as djcount '筛选数',
 sum(case when status='已入组' then 1 else 0 end) as rzcount '入组数',
+sum(case when status='导入失败' then 1 else 0 end) as dzcount '导入失败',
 sum(case when status='筛选失败' then 1 else 0 end) as sbcount '筛选失败数',
 sum(case when obj.status='已完成' then 1 else 0 end) as dscount '已完成数',
 sum(case when obj.status='已中止' then 1 else 0 end) as dsucount '已中止数' FROM derived.subject obj 
@@ -118,8 +119,9 @@ quit;
 proc sql;
 create table EDC.EDC_metrics as 
 SELECT zxlsb.zxbhzd as zxbhzd '研究中心编号',zxlsb.dw as dw '研究中心名称' ,COALESCE(subjectview.jlcount,0) as jlcount '受试者筛选数',
-COALESCE(subjectview.sbcount,0) as sbcount '筛选失败数',COALESCE(subjectview.rzcount+subjectview.dsucount+subjectview.dscount,0) as rzcount '受试者入组数',
-COALESCE(SAEView.saesubjcount,0) as saesubject 'SAE受试者数',COALESCE(SAEView.saecount,0) as saecount 'SAE条数',COALESCE(subjectview.dsucount,0) as dsucount '受试者已终止数',
+COALESCE(subjectview.sbcount,0) as sbcount '筛选失败数',COALESCE(subjectview.dzcount,0) as dzcount '导入失败数',COALESCE(subjectview.rzcount+subjectview.dsucount+subjectview.dscount,0) as rzcount '受试者入组数',
+COALESCE(SAEView.saesubjcount,0) as saesubject 'SAE受试者数',COALESCE(SAEView.saecount,0) as saecount 'SAE条数',COALESCE(subjectview.dsucount,0) as dsucount '受试者已中止数',
+COALESCE(subjectview.dscount,0) as dscount '受试者已完成数',
 COALESCE(qsvisitview.qsvisit,0) as qsvisit '访视缺失受试者数',COALESCE(qscrf.qscrf,0) as qscrf '入组受试者缺失页数',COALESCE(zsview.zs,0) as zs '总记录页数',COALESCE(input(zsview.zs1,best.),0) as zs1 '未提交页数',
 COALESCE(round(input(zsview.zs1,best.)/zsview.zs*100,0.01),0) as zsq "未提交百分率(%)",COALESCE(sdvnum.sdvnum,0) as sdvnum '未SDV字段数',COALESCE(sdvnum.sdvrate,0) as sdvrate "未SDV字段百分率(%)",
 COALESCE(zynum.zynum,0) as zynum '总质疑数',COALESCE(zynum.zynum1,0) as zynum1 '未回复质疑数',COALESCE(round(zynum.zynum1/zynum.zynum*100,0.1),0) as zyrate "未回复质疑率(%)",
@@ -135,5 +137,4 @@ LEFT JOIN EDC.pisubjview pisubjview on zxlsb.zxbhzd=pisubjview.siteid and pisubj
  ORDER BY zxlsb.zxbhzd;
 quit;
 
-
-data out.l1; set EDC.EDC_metrics(label='EDC进展报告'); run;
+data out.l1(label='EDC进展报告'); set EDC.EDC_metrics; run;

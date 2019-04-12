@@ -30,9 +30,9 @@ proc datasets lib=work nolist kill; run;
 %let visit=visit;/*访视阶段的变量名，是否有的项目的该变量名为svstage？*/
 %let visitnum=visitnum; /*访视序号的变量名，是否有的项目的该变量名为其他的？*/
 %let visdat=visdat;/*访视日期的变量名，是否有的项目叫svstdat？*/
-%let specialvisit='生存随访','C8后访视';
+%let specialvisit='电话随访','共同页','计划外访视';
 %let ds1=ds1;/*治疗结束页名称，是否有项目会有多个治疗结束页，需要确定用哪个*/
-%let novisdat='共同页','计划外访视'; /*有的项目不统计计划外*/
+%let novisdat='治疗结束页'; /*有的项目不统计计划外*/
 
 
 
@@ -77,6 +77,7 @@ data sub_v_sv_hc;
 	if a;
 run;
 /*去除已选择未采集的crf*/
+/*未出现未收集记录表以及ds相关表格*/
 data uncollect;
 	length svnum $20;
 	set derived.uncollect(keep=recordid svnum visitnum visitnum tableid status where=(status='已确认') rename=(svnum=svnum1));
@@ -99,7 +100,9 @@ data ds1;
 	set derived.&ds1.(keep=subjid  pub_tid);
 	rename pub_tid=ds1;
 run;
-proc sort data=ds1;by subjid;run;
+proc sort data=ds1;
+by subjid;
+run;
 
 
 proc sql;
@@ -108,7 +111,7 @@ quit;
 
 /*区分有访视日期的，与无访视日期的访视*/
 data prefinal1 prefinal_1;
-	set sub_ds1;
+	set  sub_ds1;
 	if visitname in (&novisdat.) then output prefinal1;
 	else if visitname not in (&novisdat.) and &visdat. ne '' then  output prefinal_1;
 run;
@@ -143,14 +146,14 @@ data prefinal_4;
 	if today()-input(&visdat.,yymmdd10.)>15 or visdat_ ne '';
 run;
 
-data edc.crfmiss;
+data edc.crfmiss(where=(status='导入失败' and visitname='基线检查/V3' and dmname in ('访视日期','随机标准','随机入组','筛选失败者药物回收情况','筛选失败药物回收情况') or status ^='导入失败' ));
 	retain studyid siteid subjid status visitname visitnum dmname &visdat. day;
 	set prefinal3 prefinal_4;
 	if ^missing(&visdat.)  then 
 	day=today()-input(&visdat.,yymmdd10.);
 	visitnum=input(visitid,best.);
 	keep studyid siteid subjid status visitname visitnum dmname &visdat. day;
-	label day ='页面缺失据今天数';
+	label day ='页面缺失距今天数';
 run;
 proc sort data=edc.crfmiss;by subjid visitnum;run;
 
@@ -162,5 +165,4 @@ count(*) as qscrf '页面缺失数' from edc.crfmiss qscrfview group by qscrfview.sit
 ;
 quit;
 
-
-data out.l3; set edc.crfmiss(label='页面缺失汇总'); run;
+data out.l3(label='页面缺失汇总'); set edc.crfmiss; run;

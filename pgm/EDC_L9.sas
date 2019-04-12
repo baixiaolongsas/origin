@@ -1,8 +1,8 @@
 /*soh**********************************************************************************
-CODE NAME                 : <运行导出>
+CODE NAME                 : <EDC_L9>
 CODE TYPE                 : <listing >
 DESCRIPTION               : <> 
-SOFTWARE/VERSION#         : <SAS 9.4>
+SOFTWARE/VERSION#         : <SAS 9.3>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
@@ -14,28 +14,15 @@ ASSUMPTIONS               : <	>
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 REVISION HISTORY SECTION:
- Author & baixiaolong
+ Author & liying
 	
 Ver# Peer Reviewer        Code History Description
 ---- ----------------     ------------------------------------------------
-01		
+
 **eoh**********************************************************************************/;
 dm log 'clear';
 proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
 
-%include '.\Uncompress.sas' ;
-%include '.\GET_DATA.sas' ;
-
-%include '..\pgm\EDC_L1.sas';
-%include '..\pgm\EDC_L2.sas';
-%include '..\pgm\EDC_L3.sas';
-%include '..\pgm\EDC_L4.sas';
-%include '..\pgm\EDC_L5.sas';
-%include '..\pgm\EDC_L6.sas';
-%include '..\pgm\EDC_L7.sas';
-%include '..\pgm\EDC_L8.sas';
-%include '..\pgm\EDC_L9.sas';
-
-
-%m_exportxlsx(title=进展报告,creator=李影);
+data out.l10(label='不良事件'); set derived.ae; run;
+data out.l11(label='低血糖事件'); set derived.hypo; run;

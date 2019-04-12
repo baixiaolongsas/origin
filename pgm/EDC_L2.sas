@@ -1,8 +1,8 @@
 /*soh**********************************************************************************
-CODE NAME                 : <edc.l2>
-CODE TYPE                 : <>
-DESCRIPTION               : <DM未核查页明细> 
-SOFTWARE/VERSION#         : <SAS 9.4>
+CODE NAME                 : <alltoexcel.sas>
+CODE TYPE                 : <SHR_1210 >
+DESCRIPTION               : <数据导出> 
+SOFTWARE/VERSION#         : <SAS 9.3>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
@@ -25,8 +25,15 @@ Ver# Peer Reviewer        Code History Description
 dm log 'clear';
 proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
+
+data edc.hchzb2;
+   set edc.hchzb;
+if input(yhczdsle,best.) gt input(xhczdzsle,best.) then yhczdsle=left(min(yhczdsle,xhczdzsle));
+run;
+
+
 proc sql;
-	create table hchzb_sum as select input(jl,best.) as jl,yhczdsle 'DM已核查字段数量',xhczdzsle 'DM需核查字段数量' from edc.hchzb where xhczdzsle>yhczdsle;
+	create table hchzb_sum as select input(jl,best.) as jl,yhczdsle 'DM已核查字段数量',xhczdzsle 'DM需核查字段数量' from edc.hchzb2 where xhczdzsle>yhczdsle;
 quit;
  proc format library=RAW cntlout=work.cntlfmt;quit;
  proc sort data=cntlfmt(keep=FMTNAME LENGTH) nodupkeys out=fmt;by _all_;run;
@@ -78,10 +85,11 @@ run;
 		else if NAME='modifyuserid' then N=17;
 		else if NAME='lastmodifytime' then N=18;
 		else if NAME='sn' then N=19;
-		else if name='lbcat' then N=20;
-		else if find(NAME,'dat') then N=20+VARNUM;
 		
-
+		
+		else if NAME='sn1' then N=20;
+		else if name='lbcat' then N=21;
+		else if find(NAME,'dat') then N=22+VARNUM;
 	run;
 	proc sort;by N;run;
 
@@ -127,7 +135,7 @@ data final_final;
 run;
 
 data final;
-	retain COL6 COL7 COL8 COL2 COL5   COL9 COL10 COL11 yhczdsly xhczdzsl COL14 COL16 COL17 COL18 WARNING ;
+	retain COL6 COL7 COL8 COL2 COL5   COL9 COL10 COL11 yhczdsle xhczdzsle COL14 COL16 COL17 COL18 WARNING ;
 	set final_final;
 	rename COL2=tid col5=lockstat col6=sitename col7=siteid col8=subjid col9=visit col10=visitnum col11=svnum col14=creator col16=createtime col17=modify col18=modifytime;
 	WARNING='后面内容为CRF记录具体信息';
@@ -168,4 +176,4 @@ data edc.unsdv_DM;
 	drop x length WARNING creator createtime modify ;
 run;
 
-data out.l5; set edc.unsdv_DM(label='DM未核查页明细'); run;
+data out.l5(label='DM未核查页明细'); set edc.unsdv_DM; run;

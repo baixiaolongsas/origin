@@ -2,7 +2,7 @@
 CODE NAME                 : <alltoexcel.sas>
 CODE TYPE                 : <SHR_1210 >
 DESCRIPTION               : <数据导出> 
-SOFTWARE/VERSION#         : <SAS 9.4>
+SOFTWARE/VERSION#         : <SAS 9.3>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
@@ -25,8 +25,27 @@ Ver# Peer Reviewer        Code History Description
 dm log 'clear';
 proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
+
+data raw.mha;
+   set raw.mha;
+drop mhatype;
+run;
+
+data raw.prc12;
+  set raw.prc12;
+drop prcdat prcdtim;
+run;
+
+
+
+data edc.hchzb1;
+   set edc.hchzb;
+if input(yhczdsly,best.) gt input(xhczdzsl,best.) then yhczdsly=left(min(yhczdsly,xhczdzsl));
+run;
+
+
 proc sql;
-	create table hchzb_sum as select input(jl,best.) as jl,yhczdsly 'CRA已核查字段数量',xhczdzsl 'CRA需核查字段数量' from edc.hchzb where xhczdzsl>yhczdsly;
+	create table hchzb_sum as select input(jl,best.) as jl,yhczdsly 'CRA已核查字段数量',xhczdzsl 'CRA需核查字段数量' from edc.hchzb1 where xhczdzsl>yhczdsly;
 quit;
  proc format library=RAW cntlout=work.cntlfmt;quit;
  proc sort data=cntlfmt(keep=FMTNAME LENGTH) nodupkeys out=fmt;by _all_;run;
@@ -78,8 +97,9 @@ run;
 		else if NAME='modifyuserid' then N=17;
 		else if NAME='lastmodifytime' then N=18;
 		else if NAME='sn' then N=19;
-		else if name='lbcat' then N=20;
-		else if find(NAME,'dat') then N=20+VARNUM;
+		else if NAME='sn1' then N=20;
+		else if name='lbcat' then N=21;
+		else if find(NAME,'dat') then N=22+VARNUM;
 		
 
 	run;
@@ -162,21 +182,53 @@ run;
 %mend;
 %test;
 
-data edc.unsdv_cra;
+data unsdv_cra;
 	set abs_final;
 	if lockstat ne '未提交';
 	drop x length WARNING creator createtime modify ;
 run;
 
 
+proc sql;
+  create table unsdv_cra1 as select
+a.sitename,a.siteid,a.subjid,a.tid,b.icfdat,a.lockstat,a.visit,a.visitnum,a.svnum,a.yhczdsly,a.xhczdzsl,a.modifytime,
+a.var_1,a.var_2,a.var_3,a.var_4,a.var_5,a.var_6,a.var_7
+from unsdv_cra as a left join derived.dm as b on a.subjid=b.subjid;
+quit;
+
+proc sort; by 	subjid 	visitnum 	svnum tid;run;
+
+data test;
+  set unsdv_cra1;
+  length date11 $4000;
+  if count(var_1,'日期') ne 0 then date11=var_1;
+  if count(var_1,'日期') eq 0 and count(var_2,'日期') ne 0 then date11=var_2;
+  if count(var_1,'日期') eq 0 and count(var_2,'日期') eq 0 and count(var_3,'日期') ne 0 then date11=var_3;
+  if count(var_1,'日期') eq 0 and count(var_2,'日期') eq 0 and count(var_3,'日期') eq 0 and count(var_4,'日期') ne 0 then date11=var_4;
+  if count(var_1,'日期') eq 0 and count(var_2,'日期') eq 0 and count(var_3,'日期') eq 0 and count(var_4,'日期') eq 0 and count(var_5,'日期') ne 0 then date11=var_5;
+ if count(var_1,'日期') eq 0 and count(var_2,'日期') eq 0 and count(var_3,'日期') eq 0 and count(var_4,'日期') eq 0 and count(var_5,'日期') eq 0 and count(var_6,'日期') ne 0 then date11=var_6;
+ if count(var_1,'日期') eq 0 and count(var_2,'日期') eq 0 and count(var_3,'日期') eq 0 and count(var_4,'日期') eq 0 and count(var_5,'日期') eq 0 and count(var_6,'日期') eq 0 and
+    count(var_7,'日期') ne 0  then date11=var_7;
+label date11='日期';
+run;
 
 proc sql;
-	create table EDC.sdvnumview as select siteid,(sum(input(hchzb.xhczdzsl,best.))-sum(input(hchzb.yhczdsly,best.))) as sdvnum '未SDV字段数',sum(input(hchzb.xhczdzsl,best.)) as sdvznum '需SDV字段数',
-	round(sum( input(hchzb.xhczdzsl,best.)-input(hchzb.yhczdsly,best.))/sum(input(hchzb.xhczdzsl,best.))*100,0.0001) as sdvrate '未SDV百分率(%)' from EDC.hchzb 
-	left join EDC.spjlb spjlb on spjlb.jl=COALESCE(hchzb.ejzbfjl,hchzb.jl,) and spjlb.dqzt NE '00'  
-	left join DERIVED.subject subject on subject.pub_rid=COALESCE(hchzb.fzbdrkbjl,hchzb.jl) where dqzt is not null and subject.siteid is not null 
+  create table edc.unsdv_cra as select
+a.sitename,a.siteid,a.subjid,a.tid,a.icfdat,a.date11,a.lockstat,a.visit,a.visitnum,a.svnum,a.yhczdsly,a.xhczdzsl,a.modifytime,
+a.var_1,a.var_2,a.var_3,a.var_4,a.var_5,a.var_6,a.var_7
+from test as a;
+quit;
+
+proc sort; by 	subjid 	visitnum 	svnum tid;run;
+
+
+/**/
+proc sql;
+	create table EDC.sdvnumview as select siteid,(sum(input(hchzb1.xhczdzsl,best.))-sum(input(hchzb1.yhczdsly,best.))) as sdvnum '未SDV字段数',sum(input(hchzb1.xhczdzsl,best.)) as sdvznum '需SDV字段数',
+	round(sum( input(hchzb1.xhczdzsl,best.)-input(hchzb1.yhczdsly,best.))/sum(input(hchzb1.xhczdzsl,best.))*100,0.0001) as sdvrate '未SDV百分率(%)' from EDC.hchzb1
+	left join EDC.spjlb spjlb on spjlb.jl=COALESCE(hchzb1.ejzbfjl,hchzb1.jl,) and spjlb.dqzt NE '00'  
+	left join DERIVED.subject subject on subject.pub_rid=COALESCE(hchzb1.fzbdrkbjl,hchzb1.jl) where dqzt is not null and subject.siteid is not null 
 	 group by subject.siteid ;
 quit;
 
-data out.l4; set edc.unsdv_cra(label='CRA未核查页明细'); run;
-
+data out.l4(label='CRA未核查页明细'); set edc.unsdv_cra; run;
