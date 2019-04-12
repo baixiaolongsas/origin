@@ -26,7 +26,7 @@ dm log 'clear';
 proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
 proc sql;
-	create table hchzb_sum as select input(jl,best.) as jl,yhczdsls 'MED已核查字段数量',xhczdzsls 'MED需核查字段数量' from edc.hchzb where xhczdzsls>yhczdsls;
+	create table hchzb_sum as select input(jl,best.) as jl,yhczdsls 'MED已核查字段数量',xhczdzsls 'MED需核查字段数量' from edc.hchzb where input(xhczdzsls,best.)>input(yhczdsls,best.);
 quit;
  proc format library=RAW cntlout=work.cntlfmt;quit;
  proc sort data=cntlfmt(keep=FMTNAME LENGTH) nodupkeys out=fmt;by _all_;run;
@@ -168,5 +168,35 @@ data edc.unsdv_MED;
 	drop x length WARNING creator createtime modify ;
 run;
 
-data out.l6(label='MED未核查页明细'); set edc.unsdv_MED; run;
 
+
+
+proc sql;
+create table edc.sdvnumviewmed1 as
+select 
+subject.siteid as siteid,
+sum(input(hchzb.xhczdzsls,best.)) as sdvznum '需SDV字段数'
+from edc.hchzb 
+left join derived.subject subject on subject.pub_rid=COALESCEc(hchzb.fzbdrkbjl,hchzb.jl)
+left join edc.spjlb spjlb on (spjlb.jl=hchzb.jl or spjlb.jl=hchzb.ejzbfjl) and spjlb.dqzt ^= '00' 
+where   hchzb.xhczdzsls is not null and (spjlb.lastmodifytime is not null) or  (hchzb.tid='subject' and (subject.lockstat ^='00' or subject.lockstat is not null)) 
+group by subject.siteid 
+;
+quit;
+
+
+proc sql;
+	create table EDC.sdvnumviewmed2 as select 
+siteid,(sum(input(hchzb.xhczdzsls,best.))-sum(input(hchzb.yhczdsls,best.))) as sdvnum '未SDV字段数'
+from EDC.unsdv_med as hchzb
+	
+   group by siteid ;
+quit;
+
+data EDC.sdvnumviewmed;
+merge EDC.sdvnumviewmed1 EDC.sdvnumviewmed2;
+by siteid ;
+sdvrate=round(sdvnum/sdvznum*100,0.0001) ;
+label sdvrate='未SDV百分率(%)';
+run;
+ 
