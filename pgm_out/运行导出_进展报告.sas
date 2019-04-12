@@ -24,6 +24,7 @@ dm log 'clear';
 proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
 
+%include '.\Uncompress.sas' ;
 %include '.\GET_DATA.sas';
 
 %include '..\pgm\EDC_L1.sas';
