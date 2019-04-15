@@ -264,23 +264,6 @@ run;
 
 proc sort ;by subjid visitnum;run;
 
-/*·ÃÊÓÁ¬ĞøÈ±Ê§*/
-/*data test;*/
-/*	set prefinal_2_1(where=(lastdat>close or lastdat=.));*/
-/*	visdat_=lag(&visdat.);*/
-/*	by subjid descending visitnum;*/
-/*	if first.subjid then visdat_='';*/
-/*  */
-/*run;*/
-/**/
-/*data test1;*/
-/*  set test;*/
-/*  retain bigdat;*/
-/*  if visit='' then bigdat=visdat_;*/
-/*  else bigdat=min(visdat_,bigdat);*/
-/*  run;*/
-
-/*proc sort ;by subjid visitnum;run;*/
 
 data edc.visitmiss;
 	retain studyid siteid subjid status visitname visitnum visitid open close day;
