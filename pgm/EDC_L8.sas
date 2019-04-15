@@ -29,26 +29,35 @@ proc datasets lib=work nolist kill; run;
 
 
 proc sql;
-create table EDC.zyb_un as
+create table EDC.zyb_un(drop=lockstat) as
 select * from EDC.zyb where zt ='1' ;
 ;
 
 
-create table EDC.zyb_rep as
+create table EDC.zyb_rep(drop=lockstat) as
 select * from EDC.zyb
 where zt ='2' 
 ;
 
-
-
 quit;
 
+data edc.zyb_un;
+retain pub_tid pub_tname pub_rid subject xmmc zybh zt subjid;
+set edc.zyb_un;
+drop pub_tid pub_tname pub_rid subject;
+run;
+proc sort;by subjid vnum;run;
 
-data out.l8(label='未回复质疑'); set EDC.zyb_un; run;
-data out.l9(label='已回复未确认质疑'); set EDC.zyb_rep; run;
+data edc.zyb_rep;
+retain pub_tid pub_tname pub_rid subject xmmc zybh zt subjid;
+set edc.zyb_rep;
+drop pub_tid pub_tname pub_rid subject;
+run;
+proc sort;by subjid vnum;run;
 
+data out.l6(label="未回复质疑");set edc.zyb_un;run;
 
-
+data out.l7(label="已回复未确认质疑");set edc.zyb_rep;run;
 
 
 

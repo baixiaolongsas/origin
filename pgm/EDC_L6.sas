@@ -53,7 +53,7 @@ proc sql;
 			into 
 			:varnames separated by ','
 				 from DICTIONARY.COLUMNS
-          where libname = "DERIVED" and memname="&DNAME" and label in ('项目代码','研究中心编号','受试者代码','访视','CRF状态','修改时间','记录ID','表名称');
+          where libname = "DERIVED" and memname="&DNAME" and label in ('项目代码','研究中心编号','受试者代码','访视','CRF状态','修改时间','记录ID','表名称','访视名称');
 		  create table pre_&DNAME as select &varnames from derived.&DNAME;
 		  
 		  select name,name||"=var"||left(put(varnum,best.))
@@ -151,6 +151,4 @@ proc sql;
 	create table zsview1 as select siteid,count(pub_rid) as zs1 '未提交页数' from prefinal group by siteid;
 	create table EDC.zsview as select a.*,coalesce(left(compress(put(b.zs1,best.),'.')),'0') as zs1 '未提交页数' from zsview as a left join zsview1 as b on a.siteid=b.siteid;
 quit;
-
-
-data out.l7(label='未提交页面汇总'); set  EDC.unsub; run;
+data out.l5(label="未提交页面汇总");set edc.unsub;run;
