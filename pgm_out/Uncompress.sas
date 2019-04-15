@@ -70,3 +70,5 @@ x "md &to2.";
 x "cd C:\Program Files\WinRAR";  
 x "winrar x &from2. &to2.";
 run;
+
+x "cd &root.\pgm_out";  
