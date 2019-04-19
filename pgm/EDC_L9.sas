@@ -1,5 +1,5 @@
 /*soh**********************************************************************************
-CODE NAME                 : <运行导出>
+CODE NAME                 : < >
 CODE TYPE                 : <listing >
 DESCRIPTION               : <> 
 SOFTWARE/VERSION#         : <SAS 9.4>
@@ -14,28 +14,59 @@ ASSUMPTIONS               : <	>
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 REVISION HISTORY SECTION:
- Author & baixiaolong
+ Author & weix
 	
 Ver# Peer Reviewer        Code History Description
 ---- ----------------     ------------------------------------------------
-01		
+01		Weixin				2018-12-21
 **eoh**********************************************************************************/;
-dm log 'clear';
-proc datasets lib=work nolist kill; run;
-%include '..\init\init.sas' ;
-%include '.\Uncompress.sas' ;
-%include '.\GET_DATA.sas';
+/*dm log 'clear';*/
+/*proc datasets lib=work nolist kill; run;*/
+/*%include '..\init\init.sas' ;*/
 
-%include '..\pgm\EDC_L1.sas';
-%include '..\pgm\EDC_L2.sas';
-%include '..\pgm\EDC_L3.sas';
-%include '..\pgm\EDC_L4.sas';
-%include '..\pgm\EDC_L5.sas';
-%include '..\pgm\EDC_L6.sas';
-%include '..\pgm\EDC_L7.sas';
-%include '..\pgm\EDC_L8.sas';
-%include '..\pgm\EDC_L9.sas';
-%include '..\pgm\EDC_L10.sas';
+/*value $f1_fmt '1'='未处理' '2'='已处理' '3'='已关闭';*/
+/*dm log 'clear';*/
 
-options fmtsearch=(work raw derived edc) nofmterr;
-%m_exportxlsx(title=进展报告,creator=史硕);
+data edc.ae;
+set derived.ae(drop=subject_ref_field  invid invname);
+sn_=input(sn,best.);
+proc sort;
+by subjid sn_;
+run;
+
+data edc.ae;
+set edc.ae;
+drop sn_;
+run;
+
+
+
+data edc.cm;
+set derived.cm(drop=subject_ref_field  invid invname);
+sn_=input(sn,best.);
+proc sort;
+by subjid sn_;
+run;
+
+data edc.cm;
+set edc.cm;
+drop sn_;
+run;
+
+
+/*data out.L10(label='生存随访');*/
+/*set derived.fup;*/
+/*run;*/
+
+data out.L11(label='不良事件');
+set edc.ae;
+run;
+
+
+data out.L12(label='合并用药');
+set edc.cm;
+run;
+
+
+
+

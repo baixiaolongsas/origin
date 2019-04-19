@@ -20,14 +20,20 @@ Ver# Peer Reviewer        Code History Description
 ---- ----------------     ------------------------------------------------
 01		Weixin				2016-7-25
 **eoh**********************************************************************************/;
+/**/
+/**/
+/*dm log 'clear';*/
+/*proc datasets lib=work nolist kill; run;*/
+/*%include '..\init\init.sas' ;*/
+/*proc sql;*/
+/*	create table hchzb_sum as select input(jl,best.) as jl,yhczdsls 'MED已核查字段数量',xhczdzsls 'MED需核查字段数量' from edc.hchzb where xhczdzsls>yhczdsls;*/
+/*quit;*/
 
-
-dm log 'clear';
-proc datasets lib=work nolist kill; run;
-%include '..\init\init.sas' ;
 proc sql;
-	create table hchzb_sum as select input(jl,best.) as jl,yhczdsls 'MED已核查字段数量',xhczdzsls 'MED需核查字段数量' from edc.hchzb where xhczdzsls>yhczdsls;
+	create table hchzb_sum as select input(jl,best.) as jl,yhczdsly 'CRA已核查字段数量',xhczdzsl 'CRA需核查字段数量',xhczdzsle,yhczdsle,xhczdzsls 'MED已核查字段数量',yhczdsls 'MED需核查字段数量' from edc.hchzb where input(xhczdzsls,best.)>input(yhczdsls,best.);
 quit;
+
+
  proc format library=RAW cntlout=work.cntlfmt;quit;
  proc sort data=cntlfmt(keep=FMTNAME LENGTH) nodupkeys out=fmt;by _all_;run;
 %macro formatall;
@@ -137,6 +143,12 @@ proc sort; by 	subjid 	visitnum 	svnum tid;run;
 
 %mend;
 %formatall;
+
+/*data edc.all_verb_med;*/
+/*	set final(where=(siteid ne ''));*/
+/*	keep subjid siteid sitename lockstat yhczdsly xhczdzsl xhczdzsle yhczdsle xhczdzsls yhczdsls;*/
+/*run;*/
+
 %macro test;
 DATA abs_final;
 	SET final;
@@ -162,11 +174,65 @@ run;
 %mend;
 %test;
 
+
+
+proc sql;
+create table visit_num as
+select distinct studyid,visitname,visitid from edc.visittable
+order by visitid
+;
+
+create table abs_final_pre as
+select b.visitname,a.* from abs_final a
+left join  visit_num b on a.visit=b.visitid
+order by a.subjid,a.visit
+;
+quit;
+
+
 data edc.unsdv_MED;
-	set abs_final;
-	if lockstat ne '未提交';
-	drop x length WARNING creator createtime modify ;
+retain sitename siteid subjid tid lockstat;
+set abs_final_pre;
+date=datepart(input(modifytime,datetime.));
+dif=today()-date;
+if lockstat ne '未提交';
+label dif='未sdv距今天数';
+drop x length WARNING creator createtime modify date visit;
 run;
 
-data out.l6(label='MED未核查页明细'); set edc.unsdv_MED; run;
+
+proc sql;
+	create table EDC.sdvnumview_med as select distinct siteid,sitename,(sum(input(hchzb.xhczdzsls,best.))-sum(input(hchzb.yhczdsls,best.))) as sdvnum '未SDV字段数',sum(input(hchzb.xhczdzsls,best.)) as sdvznum '需SDV字段数',
+	round(sum( input(hchzb.xhczdzsls,best.)-input(hchzb.yhczdsls,best.))/sum(input(hchzb.xhczdzsls,best.))*100,0.0001) as sdvrate '未SDV百分率(%)' from EDC.hchzb 
+	left join EDC.spjlb spjlb on spjlb.jl=COALESCE(hchzb.ejzbfjl,hchzb.jl,)   
+	left join DERIVED.subject subject on subject.pub_rid=COALESCE(hchzb.fzbdrkbjl,hchzb.jl) where (dqzt ^='00' or tid ='subject') and subject.siteid is not null 
+	group by subject.siteid ;
+
+	create table EDC.sdvsubjid_med as select subjid,(sum(input(hchzb.xhczdzsls,best.))-sum(input(hchzb.yhczdsls,best.))) as sdvnum '未SDV字段数',sum(input(hchzb.xhczdzsls,best.)) as sdvznum '需SDV字段数',
+	round(sum( input(hchzb.xhczdzsls,best.)-input(hchzb.yhczdsls,best.))/sum(input(hchzb.xhczdzsls,best.))*100,0.0001) as sdvrate '未SDV百分率(%)' from EDC.hchzb 
+	left join EDC.spjlb spjlb on spjlb.jl=COALESCE(hchzb.ejzbfjl,hchzb.jl,)  
+	left join DERIVED.subject subject on subject.pub_rid=COALESCE(hchzb.fzbdrkbjl,hchzb.jl) where (dqzt ^='00' or tid ='subject') and subject.siteid is not null 
+	group by subject.subjid ;
+quit;
+
+
+
+data out.L6(label='医学审核率');
+set edc.sdvnumview_med;
+run;
+
+
+/**/
+/*proc sql;*/
+/*	create table edc.allsdvnumview_med as select sitename,siteid,(sum(input(xhczdzsls,best.))-sum(input(yhczdsls,best.))) as sdvnum '未SDV字段数',sum(input(xhczdzsls,best.)) as sdvznum '需SDV字段数',sum(input(yhczdsls,best.)) as sdvnum2 '已sdv字段数',*/
+/*	round(sum( input(xhczdzsls,best.)-input(yhczdsls,best.))/sum(input(xhczdzsls,best.))*100,0.0001)  as sdvrate '未SDV百分率(%)' from edc.all_verb_med(where=(lockstat ne '未提交')) group by siteid,sitename;*/
+/**/
+/*	create table sdvnumview_med as select siteid,(sum(input(xhczdzsls,best.))-sum(input(yhczdsls,best.))) as sdvnum '未SDV字段数',sum(input(xhczdzsls,best.)) as sdvznum '需SDV字段数',sum(input(yhczdsls,best.)) as sdvnum2 '已sdv字段数',*/
+/*	round(sum( input(xhczdzsls,best.)-input(yhczdsls,best.))/sum(input(xhczdzsls,best.))*100,0.0001)  as sdvrate '未SDV百分率(%)' from edc.unsdv_MED group by siteid;*/
+/*	*/
+/*	create table allsdvnum_med as select siteid,sum(input(xhczdzsls,best.)) as allverb '全部字段数' from EDC.all_verb_med group by siteid ; */
+/**/
+/*	create table edc.sdvnumview_med as select a.siteid,a.allverb,coalesce(b.sdvnum,0) as sdvnum '未SDV字段数' ,coalesce(b.sdvznum,0)  as sdvznum '需SDV字段数',coalesce(b.sdvrate,0) as sdvrate '未SDV百分率(%)'  from allsdvnum_med  as a left join sdvnumview_med as b on a.siteid=b.siteid; */
+/**/
+/*quit;*/
 

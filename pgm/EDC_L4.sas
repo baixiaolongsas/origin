@@ -6,47 +6,44 @@ SOFTWARE/VERSION#         : <SAS 9.4>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
-INPUT                     : < >
-OUTPUT                    : < crfmiss.sas7dbat>
+INPUT                     : <  >
+OUTPUT                    : <  >
 VALIDATION LEVEL          : <	>
 REQUIREMENTS              : <	>
 ASSUMPTIONS               : <	>
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 REVISION HISTORY SECTION:
- Author & xwei
+ Author & shis
 	
 Ver# Peer Reviewer        Code History Description
 ---- ----------------     ------------------------------------------------
-01					2017-11-02
+01		 Shishuo			2018-12-21
 **eoh**********************************************************************************
 *****************************************************************************************/
 
-dm log 'clear';
-proc datasets lib=work nolist kill; run;
-%include '..\init\init.sas' ;
+/*dm log 'clear';*/
+/*proc datasets lib=work nolist kill; run;*/
+/*%include '..\init\init.sas' ;*/
 /**//**//**/
 
 %let visit=visit;/*访视阶段的变量名，是否有的项目的该变量名为svstage？*/
 %let visitnum=visitnum; /*访视序号的变量名，是否有的项目的该变量名为其他的？*/
 %let visdat=visdat;/*访视日期的变量名，是否有的项目叫svstdat？*/
-%let specialvisit='生存随访','C8后访视';
-%let ds1=ds1;/*治疗结束页名称，是否有项目会有多个治疗结束页，需要确定用哪个*/
-%let novisdat='共同页','计划外访视'; /*有的项目不统计计划外*/
+%let specialvisit='生存随访  末次治疗后30天 末次治疗后60天  末次治疗后90天  计划外访视  妊娠报告/随访';
+%let ds1=ds;/*治疗结束页名称，是否有项目会有多个治疗结束页，需要确定用哪个*/
+%let novisdat='共同页'; /*有的项目不统计计划外*/
 
 
+/*data a;*/
+/*set edc.visittable;*/
+/*b=input(visitid,best.);*/
+/*keep visitname visitid b;*/
+/*proc sort nodupkey;*/
+/*by b;*/
+/*run;*/
 
-
-
-
-
-
-
-
-
-
-
-/*筛选出费筛选失败病例*/
+/*筛选出非筛选失败病例*/
 proc sort data=derived.subject out=subject(keep=studyid siteid subjid pub_rid status where=(status ne "筛选失败"));by studyid pub_rid subjid;run;
 proc sort data=edc.visittable out=visittable(keep=studyid visitname visitid domain dmname svnum);by studyid;run;
 
@@ -55,12 +52,12 @@ proc sql;
 	create table subject_visittable as select compress(pub_rid) as pub_rid ,a.studyid,a.siteid,subjid,status,b.visitname,visitid,domain,dmname,svnum from subject as a full join visittable as b on a.studyid=b.studyid
 	where visitname not in(&specialvisit.); /*去除不需要进行页面缺失*/
 	alter table work.subject_visittable
- 	 modify pub_rid char(20) format=$20.;
-	/*连接试验数据中的访视日期*/
+ 	modify pub_rid char(20) format=$20.;
+	/*联接试验数据中的访视日期*/
 	create table subject_v_sv as select a.*,b.&visdat. from subject_visittable as a left join derived.sv as b on a.subjid=b.subjid and a.visitname=b.&visit.;
 	
 quit;
-/*保留核查汇总表所有父表并且链接到总表*/
+/*保留核查汇总表所有父表并且联接到总表*/
 data hchzb;
 	set edc.hchzb(where=(ejzbfjl='' and fs ne '') rename=(fzbdrkbjl=pub_rid1) drop=pub_rid);
 	visitid=fs;domain=tid;pub_rid=pub_rid1;
@@ -77,38 +74,39 @@ data sub_v_sv_hc;
 	if a;
 run;
 /*去除已选择未采集的crf*/
-data uncollect;
-	length svnum $20;
-	set derived.uncollect(keep=recordid svnum visitnum visitnum tableid status where=(status='已确认') rename=(svnum=svnum1));
-	rename recordid=pub_rid visitnum=visitid tableid=domain;
-	svnum=svnum1;
-	drop status svnum1;
-run;
+/*data uncollect;*/
+/*	length svnum $20;*/
+/*	set derived.uncollect(keep=recordid svnum visitnum visitnum tableid status where=(status='已确认') rename=(svnum=svnum1));*/
+/*	rename recordid=pub_rid visitnum=visitid tableid=domain;*/
+/*	svnum=svnum1;*/
+/*	drop status svnum1;*/
+/*run;*/
 
 
-proc sort data=uncollect nodupkeys dupout=a;by pub_rid visitid domain svnum;run;
+/*proc sort data=uncollect nodupkeys dupout=a;by pub_rid visitid domain svnum;run;*/
 
 data sub_uncollect;
-	merge sub_v_sv_hc uncollect(in=b);
-	by pub_rid visitid domain svnum;
-	if ^b;
-
+/*	merge sub_v_sv_hc uncollect(in=b);*/
+	set sub_v_sv_hc;
+/*	by pub_rid visitid domain svnum;*/
+/*	if ^b;*/
 run;
-/*连接试验数据治疗结束页，已判断是否治疗完成*/
-data ds1;
-	set derived.&ds1.(keep=subjid  pub_tid);
-	rename pub_tid=ds1;
-run;
-proc sort data=ds1;by subjid;run;
-
-
-proc sql;
-	create table sub_ds1 as select a.*,b.ds1 from sub_uncollect as a left join ds1 as b on a.subjid=b.subjid;
-quit;
+/*联接试验数据治疗结束页，已判断是否治疗完成*/
+/*data ds1;*/
+/*	set derived.&ds1.(keep=subjid  pub_tid);*/
+/*	rename pub_tid=ds1;*/
+/*run;*/
+/*proc sort data=ds1;by subjid;run;*/
+/**/
+/**/
+/*proc sql;*/
+/*	create table sub_ds1 as select a.*,b.ds1 from sub_uncollect as a left join ds1 as b on a.subjid=b.subjid;*/
+/*quit;*/
 
 /*区分有访视日期的，与无访视日期的访视*/
 data prefinal1 prefinal_1;
-	set sub_ds1;
+/*	set sub_ds1;*/
+	set sub_uncollect;
 	if visitname in (&novisdat.) then output prefinal1;
 	else if visitname not in (&novisdat.) and &visdat. ne '' then  output prefinal_1;
 run;
@@ -122,7 +120,7 @@ data prefinal3;
 	set prefinal2;
 	if ds1 ne '' and jl='' and crfnum1 ne 0;
 run;
-/*有访视日期的页面，连接下一次访视的访视日期*/
+/*有访视日期的页面，联接下一次访视的访视日期*/
 proc sort data=prefinal_1;by subjid  &visdat. visitid svnum;run; 
 
 data sv_1;
@@ -150,7 +148,7 @@ data edc.crfmiss;
 	day=today()-input(&visdat.,yymmdd10.);
 	visitnum=input(visitid,best.);
 	keep studyid siteid subjid status visitname visitnum dmname &visdat. day;
-	label day ='页面缺失据今天数';
+	label day ='页面缺失距今天数';
 run;
 proc sort data=edc.crfmiss;by subjid visitnum;run;
 
@@ -160,7 +158,12 @@ create table edc.qscrfview as
 select qscrfview.siteid as siteid,
 count(*) as qscrf '页面缺失数' from edc.crfmiss qscrfview group by qscrfview.siteid
 ;
+create table edc.qscrfview_sub as
+select qscrfview.subjid as subjid,
+count(*) as qscrf '页面缺失数' from edc.crfmiss qscrfview group by qscrfview.subjid
+;
 quit;
 
-
-data out.l3(label='页面缺失汇总'); set edc.crfmiss; run;
+data out.L4(label='页面缺失汇总');
+set edc.crfmiss;
+run;

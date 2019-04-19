@@ -22,9 +22,9 @@ Ver# Peer Reviewer        Code History Description
 **eoh**********************************************************************************
 *****************************************************************************************/
 
-dm log 'clear';
-proc datasets lib=work nolist kill; run;
-%include '..\init\init.sas' ;
+/*dm log 'clear';*/
+/*proc datasets lib=work nolist kill; run;*/
+/*%include '..\init\init.sas' ;*/
 
 %let visit=visit;/*访视阶段的变量名，是否有的项目的该变量名为svstage？*/
 %let visitnum=visitnum; /*访视序号的变量名，是否有的项目的该变量名为其他的？*/
@@ -41,6 +41,7 @@ proc sql;
 quit;
 
 %macro get_unsub_pre;
+
 proc sql;
 	select count(*) into:dnum from DICTIONARY.TABLES
                 where libname = "DERIVED" ;
@@ -53,7 +54,9 @@ proc sql;
 			into 
 			:varnames separated by ','
 				 from DICTIONARY.COLUMNS
-          where libname = "DERIVED" and memname="&DNAME" and label in ('项目代码','研究中心编号','受试者代码','访视','CRF状态','修改时间','记录ID','表名称');
+/*          where libname = "DERIVED" and memname="&DNAME" and label in ('项目代码','研究中心编号','受试者代码','访视','CRF状态','修改时间','记录ID','表名称');*/
+          where libname = "DERIVED" and memname="&DNAME" and label in ('项目代码','研究中心编号','受试者代码','访视','CRF状态','修改时间','记录ID','表名称','访视名称');
+
 		  create table pre_&DNAME as select &varnames from derived.&DNAME;
 		  
 		  select name,name||"=var"||left(put(varnum,best.))
@@ -112,6 +115,23 @@ proc sql;
 	create table zsview as select siteid,count(pub_rid) as zs '总记录页数' from selected group by siteid;
 quit;
 
+/*按受试者划分*/
+
+
+
+proc sql;
+	create table zssub_1 as select subjid,count(subjid) as zs1 '总记录页数' from selected group by subjid;
+/*	create table zssub_2 as select subjid,count(subjid) as zs2 '未提交页数' from selected where lockstat ='未提交'group by subjid;*/
+	create table zssub_3 as select subjid,count(subjid) as zs3 '未锁定页数' from selected where lockstat ^='锁定'group by subjid;
+	create table zssub_4 as select subjid,count(subjid) as zs4 '未冻结页数' from selected where lockstat ^='冻结'group by subjid;
+
+quit;
+
+/*data edc.zssub;*/
+/*merge zssub_1 zssub_2 zssub_3 zssub_4;*/
+/*if subjid ne '';*/
+/*run;*/
+
 data sn;
 	set sn_:(rename=(var3=pub_rid));
 	x=catx('|',of var:);
@@ -133,10 +153,12 @@ proc sort data=dat ;by pub_rid;run;
 proc sort data=selected out=selected(where=(lockstat='未提交'));by pub_rid;run;
 
 proc sql;
-	create table prefinal as select a.*,b.sn,c.dat,status,icfdat from selected as a 
+	create table prefinal as select a.*,b.sn,c.dat,d.status,e.icfdat from selected as a 
 		left join sn b on compress(a.pub_rid)=compress(b.pub_rid)
 			left join dat as c on compress(a.pub_rid)=compress(c.pub_rid)
-				left join derived.subject as d on a.subjid=d.subjid;
+				left join derived.subject as d on a.subjid=d.subjid
+						  left join derived.dm as e on a.subjid=e.subjid;
+
 quit;
 
 data EDC.unsub;
@@ -150,7 +172,27 @@ run;
 proc sql;
 	create table zsview1 as select siteid,count(pub_rid) as zs1 '未提交页数' from prefinal group by siteid;
 	create table EDC.zsview as select a.*,coalesce(left(compress(put(b.zs1,best.),'.')),'0') as zs1 '未提交页数' from zsview as a left join zsview1 as b on a.siteid=b.siteid;
+	create table zssub_2 as select subjid,count(pub_rid) as zs2 '未提交页数' from prefinal group by subjid;
 quit;
 
+data edc.zssub;
+merge zssub_1  zssub_3 zssub_4 zssub_2;
+if subjid ne '';
+run;
 
-data out.l7(label='未提交页面汇总'); set  EDC.unsub; run;
+
+
+proc sql;
+create table edc.zssub as
+select a.subjid,a.zs1,coalesce(b.zs2,0) as zs2 '未提交页数',c.zs3,d.zs4 from zssub_1 a
+left join zssub_2 b on a.subjid=b.subjid
+left join zssub_3 c on a.subjid=c.subjid
+left join zssub_4 d on a.subjid=d.subjid
+order by a.subjid
+
+;
+quit;
+
+data out.L7(label='未提交页面汇总');
+set EDC.unsub;
+run;

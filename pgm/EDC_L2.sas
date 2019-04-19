@@ -1,8 +1,8 @@
 /*soh**********************************************************************************
-CODE NAME                 : <edc.l2>
-CODE TYPE                 : <>
-DESCRIPTION               : <DM未核查页明细> 
-SOFTWARE/VERSION#         : <SAS 9.4>
+CODE NAME                 : <alltoexcel.sas>
+CODE TYPE                 : <SHR_1210 >
+DESCRIPTION               : <数据导出> 
+SOFTWARE/VERSION#         : <SAS 9.3>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
@@ -21,12 +21,12 @@ Ver# Peer Reviewer        Code History Description
 01		Weixin				2016-7-25
 **eoh**********************************************************************************/;
 
-
-dm log 'clear';
-proc datasets lib=work nolist kill; run;
-%include '..\init\init.sas' ;
+/**/
+/*dm log 'clear';*/
+/*proc datasets lib=work nolist kill; run;*/
+/*%include '..\init\init.sas' ;*/
 proc sql;
-	create table hchzb_sum as select input(jl,best.) as jl,yhczdsle 'DM已核查字段数量',xhczdzsle 'DM需核查字段数量' from edc.hchzb where xhczdzsle>yhczdsle;
+	create table hchzb_sum as select input(jl,best.) as jl,yhczdsle 'DM已核查字段数量',xhczdzsle 'DM需核查字段数量' from edc.hchzb where input(xhczdzsle,best.)>input(yhczdsle,best.);
 quit;
  proc format library=RAW cntlout=work.cntlfmt;quit;
  proc sort data=cntlfmt(keep=FMTNAME LENGTH) nodupkeys out=fmt;by _all_;run;
@@ -127,7 +127,7 @@ data final_final;
 run;
 
 data final;
-	retain COL6 COL7 COL8 COL2 COL5   COL9 COL10 COL11 yhczdsly xhczdzsl COL14 COL16 COL17 COL18 WARNING ;
+	retain COL6 COL7 COL8 COL2 COL5   COL9 COL10 COL11 yhczdsle xhczdzsle COL14 COL16 COL17 COL18 WARNING ;
 	set final_final;
 	rename COL2=tid col5=lockstat col6=sitename col7=siteid col8=subjid col9=visit col10=visitnum col11=svnum col14=creator col16=createtime col17=modify col18=modifytime;
 	WARNING='后面内容为CRF记录具体信息';
@@ -162,10 +162,51 @@ run;
 %mend;
 %test;
 
+
+
+proc sql;
+create table visit_num as
+select distinct studyid,visitname,visitid from edc.visittable
+order by visitid
+;
+
+create table abs_final_pre as
+select b.visitname,a.* from abs_final a
+left join  visit_num b on a.visit=b.visitid
+order by a.subjid,a.visit
+;
+quit;
+
+
 data edc.unsdv_DM;
-	set abs_final;
-	if lockstat ne '未提交';
-	drop x length WARNING creator createtime modify ;
+retain sitename siteid subjid tid lockstat;
+set abs_final_pre;
+date=datepart(input(modifytime,datetime.));
+dif=today()-date;
+if lockstat ne '未提交';
+label dif='未sdv距今天数';
+drop x length WARNING creator createtime modify date visit;
 run;
 
-data out.l5(label='DM未核查页明细'); set edc.unsdv_DM; run;
+
+
+
+proc sql;
+	create table EDC.sdvnumview_dm as select siteid,(sum(input(hchzb.xhczdzsle,best.))-sum(input(hchzb.yhczdsle,best.))) as sdvnum '未SDV字段数',sum(input(hchzb.xhczdzsle,best.)) as sdvznum '需SDV字段数',
+	round(sum( input(hchzb.xhczdzsle,best.)-input(hchzb.yhczdsle,best.))/sum(input(hchzb.xhczdzsle,best.))*100,0.0001) as sdvrate '未SDV百分率(%)' from EDC.hchzb 
+	left join EDC.spjlb spjlb on spjlb.jl=COALESCE(hchzb.ejzbfjl,hchzb.jl,) 
+	left join DERIVED.subject subject on subject.pub_rid=COALESCE(hchzb.fzbdrkbjl,hchzb.jl) where (dqzt ^='00' or tid ='subject') and subject.siteid is not null 
+	group by subject.siteid ;
+
+	create table EDC.sdvsubjid_dm as select subjid,(sum(input(hchzb.xhczdzsle,best.))-sum(input(hchzb.yhczdsle,best.))) as sdvnum '未SDV字段数',sum(input(hchzb.xhczdzsle,best.)) as sdvznum '需SDV字段数',
+	round(sum( input(hchzb.xhczdzsle,best.)-input(hchzb.yhczdsle,best.))/sum(input(hchzb.xhczdzsle,best.))*100,0.0001) as sdvrate '未SDV百分率(%)' from EDC.hchzb 
+	left join EDC.spjlb spjlb on spjlb.jl=COALESCE(hchzb.ejzbfjl,hchzb.jl,)   
+	left join DERIVED.subject subject on subject.pub_rid=COALESCE(hchzb.fzbdrkbjl,hchzb.jl) where (dqzt ^='00' or tid ='subject') and subject.siteid is not null 
+	group by subject.subjid ;
+quit;
+
+
+
+
+
+
