@@ -2,7 +2,7 @@
 CODE NAME                 : <alltoexcel.sas>
 CODE TYPE                 : <SHR_1210 >
 DESCRIPTION               : <数据导出> 
-SOFTWARE/VERSION#         : <SAS 9.4>
+SOFTWARE/VERSION#         : <SAS 9.3>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
@@ -178,5 +178,6 @@ proc sql;
 	 group by subject.siteid ;
 quit;
 
-data out.l4(label='CRA未核查页明细'); set edc.unsdv_cra; run;
+data out.l5(label='CRA未核查页明细'); set edc.unsdv_cra; run;
+
 
