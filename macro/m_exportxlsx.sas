@@ -192,7 +192,7 @@ data summary;
   length projects title creator creatime $50 ;
   set temp2 temp1; 
 run;
-proc sort nodupkeys; by projects title creatime; run;
+proc sort; by projects title creatime; run;
 
 ods listing close; 
 ods RESULTS off; 
