@@ -6,8 +6,8 @@ SOFTWARE/VERSION#         : <SAS 9.4>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
-INPUT                     : < bioknow 1.0>
-OUTPUT                    : < 、 >
+INPUT                     : <   >
+OUTPUT                    : <   >
 VALIDATION LEVEL          : <	>
 REQUIREMENTS              : <	>
 ASSUMPTIONS               : <	>
@@ -21,12 +21,12 @@ Ver# Peer Reviewer        Code History Description
 01		Weixin				2016-7-25
 **eoh**********************************************************************************/;
 
-
-dm log 'clear';
-proc datasets lib=work nolist kill; run;
-%include '..\init\init.sas' ;
+/**/
+/*dm log 'clear';*/
+/*proc datasets lib=work nolist kill; run;*/
+/*%include '..\init\init.sas' ;*/
 proc sql;
-	create table hchzb_sum as select input(jl,best.) as jl,yhczdsly 'CRA已核查字段数量',xhczdzsl 'CRA需核查字段数量' from edc.hchzb where xhczdzsl>yhczdsly;
+	create table hchzb_sum as select input(jl,best.) as jl,yhczdsly 'CRA已核查字段数量',xhczdzsl 'CRA需核查字段数量' from edc.hchzb where input(xhczdzsl,best.)>input(yhczdsly,best.);
 quit;
  proc format library=RAW cntlout=work.cntlfmt;quit;
  proc sort data=cntlfmt(keep=FMTNAME LENGTH) nodupkeys out=fmt;by _all_;run;
@@ -137,6 +137,10 @@ proc sort; by 	subjid 	visitnum 	svnum tid;run;
 
 %mend;
 %formatall;
+
+
+
+
 %macro test;
 DATA abs_final;
 	SET final;
@@ -162,21 +166,52 @@ run;
 %mend;
 %test;
 
-data edc.unsdv_cra;
-	set abs_final;
-	if lockstat ne '未提交';
-	drop x length WARNING creator createtime modify ;
-run;
 
+proc sql;
+create table visit_num as
+select distinct studyid,visitname,visitid from edc.visittable
+order by visitid
+;
+
+create table abs_final_pre as
+select b.visitname,a.* from abs_final a
+left join  visit_num b on a.visit=b.visitid
+order by a.subjid,a.visit
+;
+quit;
+
+
+data edc.unsdv_cra;
+retain sitename siteid subjid tid lockstat;
+set abs_final_pre;
+date=datepart(input(modifytime,datetime.));
+dif=today()-date;
+if lockstat ne '未提交';
+label dif='未sdv距今天数';
+drop x length WARNING creator createtime modify date visit;
+run;
 
 
 proc sql;
 	create table EDC.sdvnumview as select siteid,(sum(input(hchzb.xhczdzsl,best.))-sum(input(hchzb.yhczdsly,best.))) as sdvnum '未SDV字段数',sum(input(hchzb.xhczdzsl,best.)) as sdvznum '需SDV字段数',
 	round(sum( input(hchzb.xhczdzsl,best.)-input(hchzb.yhczdsly,best.))/sum(input(hchzb.xhczdzsl,best.))*100,0.0001) as sdvrate '未SDV百分率(%)' from EDC.hchzb 
-	left join EDC.spjlb spjlb on spjlb.jl=COALESCE(hchzb.ejzbfjl,hchzb.jl,) and spjlb.dqzt NE '00'  
-	left join DERIVED.subject subject on subject.pub_rid=COALESCE(hchzb.fzbdrkbjl,hchzb.jl) where dqzt is not null and subject.siteid is not null 
-	 group by subject.siteid ;
+	left join EDC.spjlb spjlb on spjlb.jl=COALESCE(hchzb.ejzbfjl,hchzb.jl,)   
+	left join DERIVED.subject subject on subject.pub_rid=COALESCE(hchzb.fzbdrkbjl,hchzb.jl) 
+	where (dqzt ^='00' or tid ='subject') and subject.siteid is not null 
+	group by subject.siteid ;
+
+
+/*	create table EDC.sdvsubjid as select distinct subjid,*/
+/*	(sum(input(xhczdzsl,best.))-sum(input(yhczdsly,best.))) as sdvnum '未SDV字段数',*/
+/*	sum(input(xhczdzsl,best.)) as sdvznum '需SDV字段数',*/
+/*	round(sum( input(xhczdzsl,best.)-input(yhczdsly,best.))/sum(input(xhczdzsl,best.))*100,0.0001) as sdvrate '未SDV百分率(%)' */
+/*	from EDC.unsdv_cra */
+/*	group by subjid ;*/
+
 quit;
 
-data out.l4(label='CRA未核查页明细'); set edc.unsdv_cra; run;
 
+
+data out.L4(label='CRA未核查页明细');
+set edc.unsdv_cra;
+run;

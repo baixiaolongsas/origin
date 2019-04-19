@@ -22,9 +22,9 @@ Ver# Peer Reviewer        Code History Description
 **eoh**********************************************************************************
 *****************************************************************************************/
 
-dm log 'clear';
-proc datasets lib=work nolist kill; run;
-%include '..\init\init.sas' ;
+/*dm log 'clear';*/
+/*proc datasets lib=work nolist kill; run;*/
+/*%include '..\init\init.sas' ;*/
 
 %let visit=visit;/*访视阶段的变量名，是否有的项目的该变量名为svstage？*/
 %let visitnum=visitnum; /*访视序号的变量名，是否有的项目的该变量名为其他的？*/
@@ -41,6 +41,7 @@ proc sql;
 quit;
 
 %macro get_unsub_pre;
+
 proc sql;
 	select count(*) into:dnum from DICTIONARY.TABLES
                 where libname = "DERIVED" ;
@@ -53,7 +54,9 @@ proc sql;
 			into 
 			:varnames separated by ','
 				 from DICTIONARY.COLUMNS
-          where libname = "DERIVED" and memname="&DNAME" and label in ('项目代码','研究中心编号','受试者代码','访视','CRF状态','修改时间','记录ID','表名称');
+/*          where libname = "DERIVED" and memname="&DNAME" and label in ('项目代码','研究中心编号','受试者代码','访视','CRF状态','修改时间','记录ID','表名称');*/
+          where libname = "DERIVED" and memname="&DNAME" and label in ('项目代码','研究中心编号','受试者代码','访视','CRF状态','修改时间','记录ID','表名称','访视名称');
+
 		  create table pre_&DNAME as select &varnames from derived.&DNAME;
 		  
 		  select name,name||"=var"||left(put(varnum,best.))
@@ -133,10 +136,12 @@ proc sort data=dat ;by pub_rid;run;
 proc sort data=selected out=selected(where=(lockstat='未提交'));by pub_rid;run;
 
 proc sql;
-	create table prefinal as select a.*,b.sn,c.dat,status,icfdat from selected as a 
+	create table prefinal as select a.*,b.sn,c.dat,d.status,e.icfdat from selected as a 
 		left join sn b on compress(a.pub_rid)=compress(b.pub_rid)
 			left join dat as c on compress(a.pub_rid)=compress(c.pub_rid)
-				left join derived.subject as d on a.subjid=d.subjid;
+				left join derived.subject as d on a.subjid=d.subjid
+						  left join derived.dm as e on a.subjid=e.subjid;
+
 quit;
 
 data EDC.unsub;
@@ -153,4 +158,6 @@ proc sql;
 quit;
 
 
-data out.l7(label='未提交页面汇总'); set  EDC.unsub; run;
+data out.L5(label='未提交页面汇总');
+set EDC.unsub;
+run;
