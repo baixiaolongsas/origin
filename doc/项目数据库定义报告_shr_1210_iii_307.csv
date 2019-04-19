@@ -1,0 +1,517 @@
+表,表名称,表名称英文,变量名,变量名英文,变量,变量类型,编码名称
+subject,受试者信息,Subject Info,项目代码,Study,studyid,字符,
+subject,受试者信息,Subject Info,研究中心编号,Site,siteid,字符,
+subject,受试者信息,Subject Info,研究中心名称,Site Name,sitename,字符,
+subject,受试者信息,Subject Info,研究者代码,Investigator,invid,字符,
+subject,受试者信息,Subject Info,研究者姓名,Investigator Name,invname,字符,
+subject,受试者信息,Subject Info,受试者代码,Subject,subjid,字符,
+subject,受试者信息,Subject Info,CRF状态,CRF Status,lockstat,单选,
+subject,受试者信息,Subject Info,受试者状态,Subject Status,status,单选,SUBJECT_STATUS
+subject,受试者信息,Subject Info,项目名称,Study Name,studyname,长字符,
+subject,受试者信息,Subject Info,姓名缩写,Initials,subjinit,字符,
+subject,受试者信息,Subject Info,是否符合所有入选标准且不符合所有排除标准,Met Criteria,ieyn,单选,YN
+subject,受试者信息,Subject Info,试验类型,Treat Group,stage,单选,
+subject,受试者信息,Subject Info,CRC负责研究中心,Site ID. For CRC,crc_siteid,字符,
+subject,受试者信息,Subject Info,性别,Sex,sex,单选,SEX
+subject,受试者信息,Subject Info,知情同意书签署日期,,icfdat,日期时间,
+sv,访视日期,Visit Date,访视日期,Visit Date,visdat,日期时间,
+dm,人口学资料,Demographics,知情同意书签署日期,,icfdat,日期时间,
+dm,人口学资料,Demographics,出生日期,Date of birth,brthdat,日期时间,
+dm,人口学资料,Demographics,年龄,,age,字符,
+dm,人口学资料,Demographics,年龄单位,,ageu,单选,AGEU
+dm,人口学资料,Demographics,性别,Sex,sex,单选,SEX
+dm,人口学资料,Demographics,民族,Ethnicity,ethnic,单选,ETHNIC
+dm,人口学资料,Demographics,其他民族,Other ethnicity,ethnicot,字符,
+mht,肿瘤诊断,,首次病理学确诊日期,,idxd,字符,
+mht,肿瘤诊断,,病理标本获取方式,,orig,单选,ORIG
+mht,肿瘤诊断,,标本类型,,mhtscat,单选,MHTSCAT
+mht,肿瘤诊断,,组织学分级,,histgr,单选,HISTGR
+mht,肿瘤诊断,,原发灶部位,,cadprm,单选,CADP
+mht,肿瘤诊断,,是否有转移灶,,metyn,单选,YN
+mht,肿瘤诊断,,转移灶部位(多选),,tuloc,多选,XTULOC
+mht,肿瘤诊断,,其他请填写,,mhtoloc,字符,
+mht,肿瘤诊断,,TNM分期（T）,,caprm,单选,CAPRML
+mht,肿瘤诊断,,TNM分期（N）,,rlymph,单选,RLYMPHL
+mht,肿瘤诊断,,TNM分期（M）,,metdis,单选,METDISL
+mht,肿瘤诊断,,临床分期,,mhtcls,单选,MHTCLS
+mht,肿瘤诊断,,病理类型,,lntyp,单选,LNTYP
+mht,肿瘤诊断,,最后一次进展/转移日期,,mhtppdat,字符,
+tsh,肿瘤手术史,,手术史,Cancer surgery history,tshyn,单选,NONE
+tsh,肿瘤手术史,,序号,TSH ID,sn,整数,
+tsh,肿瘤手术史,,手术日期,Date of surgery,tshstdat,字符,
+tsh,肿瘤手术史,,手术名称,Surgical procedure,tshtrt,字符,
+tsh,肿瘤手术史,,手术部位,Specific location,tshloc,单选,TULOC
+tsh,肿瘤手术史,,其他部位,Other location,tshloco,字符,
+tsh,肿瘤手术史,,手术目的,Intent of surgery,tshtyp,单选,TSHTYPE
+tsh,肿瘤手术史,,其他目的,Other intent of surgery,tshtypot,字符,
+sh,其他手术史,,其他手术史,Any surgery？,tshyn,单选,NONE
+sh,其他手术史,,序号,SH ID,sn,整数,
+sh,其他手术史,,手术名称,Surgery term,tshtrt,字符,
+sh,其他手术史,,手术日期,Surgery date,tshstdat,字符,
+trh,放疗史,Radiotherapy History,放疗史,Radiotherapy history,trhyn,单选,NONE
+trh,放疗史,Radiotherapy History,序号,TRH ID,sn,整数,
+trh,放疗史,Radiotherapy History,放疗部位,Site,trhloc,单选,TULOC
+trh,放疗史,Radiotherapy History,其他部位,Other site,trhloco,字符,
+trh,放疗史,Radiotherapy History,开始日期,Start date,trhstdat,字符,
+trh,放疗史,Radiotherapy History,结束日期,End date,trhendat,字符,
+trh,放疗史,Radiotherapy History,放射总剂量,Total cumulative dose,trhdose,字符,
+trh,放疗史,Radiotherapy History,剂量单位,Dose unit,trhdosu,单选,TRHDOSU
+trh,放疗史,Radiotherapy History,其他单位,Other dose unit,trhdosuo,字符,
+trh,放疗史,Radiotherapy History,放疗目的,,trtyp,单选,TRTYP
+trh,放疗史,Radiotherapy History,其他目的,,trtypo,字符,
+tch,抗肿瘤药物治疗史,Systemic Therapy History,抗肿瘤药物治疗史,Systemic therapy history,tchyn,单选,NONE
+tch,抗肿瘤药物治疗史,Systemic Therapy History,序号,TCH ID,sn,整数,
+tch,抗肿瘤药物治疗史,Systemic Therapy History,治疗分类,Therapy setting,tchtyp,单选,TCHTYP
+tch,抗肿瘤药物治疗史,Systemic Therapy History,治疗阶段,Line of therapy,tchtln,单选,TCHTLN
+tch,抗肿瘤药物治疗史,Systemic Therapy History,其他治疗阶段,Other,tchtlno,字符,
+tch,抗肿瘤药物治疗史,Systemic Therapy History,方案,Chemotherapy regimen(s),tchtrt,字符,
+tch,抗肿瘤药物治疗史,Systemic Therapy History,总疗程数,Total treatment cycle(s),tchcour,字符,
+tch,抗肿瘤药物治疗史,Systemic Therapy History,治疗结局,Outcome of the treatment,tchout,单选,TCHOUT
+tch,抗肿瘤药物治疗史,Systemic Therapy History,其他结局,Other,tchoutot,字符,
+tch,抗肿瘤药物治疗史,Systemic Therapy History,进展日期,Date of progressive disease,tchpddat,字符,
+tch_detail,抗肿瘤药物治疗史明细,Systemic Therapy History Detail,序号,,sn,整数,
+tch_detail,抗肿瘤药物治疗史明细,Systemic Therapy History Detail,药物名称,Medication term,tchtrt,字符,
+tch_detail,抗肿瘤药物治疗史明细,Systemic Therapy History Detail,治疗类型,Type of the treatment,tchcat,单选,TCHCAT
+tch_detail,抗肿瘤药物治疗史明细,Systemic Therapy History Detail,其他类型,Other type,tchocat,字符,
+tch_detail,抗肿瘤药物治疗史明细,Systemic Therapy History Detail,每次剂量,Dose,tchdose,字符,
+tch_detail,抗肿瘤药物治疗史明细,Systemic Therapy History Detail,剂量单位,Dose unit,tchdosu,单选,DOSU
+tch_detail,抗肿瘤药物治疗史明细,Systemic Therapy History Detail,其他单位,Other dose unit,tchdosuo,字符,
+tch_detail,抗肿瘤药物治疗史明细,Systemic Therapy History Detail,给药频率,Frequency,tchdsfq,单选,PTRDSFQ
+tch_detail,抗肿瘤药物治疗史明细,Systemic Therapy History Detail,其他给药频率,Other frequency,tchdsfqo,字符,
+tch_detail,抗肿瘤药物治疗史明细,Systemic Therapy History Detail,开始日期,Start Date,tchstdat,字符,
+tch_detail,抗肿瘤药物治疗史明细,Systemic Therapy History Detail,结束日期,End Date,tchendat,字符,
+mh,既往病史,Medical History,既往病史,Any medical history,mhyn,单选,NONE
+mh,既往病史,Medical History,序号,MH ID,sn,整数,
+mh,既往病史,Medical History,疾病名称/症状,MH term,mhterm,字符,
+mh,既往病史,Medical History,确诊/开始日期,Start date,mhstdat,字符,
+mh,既往病史,Medical History,是否持续,Still ongoing,mhongo,单选,YN
+mh,既往病史,Medical History,结束日期,End date,mhendat,字符,
+mh,既往病史,Medical History,已编码,Coded,codeyn,单选,YN
+mh,既往病史,Medical History,编码字典名称,Codingdict,dictname,字符,
+mh,既往病史,Medical History,编码字典版本,Dictversion,dictvers,字符,
+mh,既往病史,Medical History,被编码字段值,Coded term,decod,字符,
+mh,既往病史,Medical History,低位语,LLT,llt,字符,
+mh,既往病史,Medical History,低位语代码,LLT code,lltcd,字符,
+mh,既往病史,Medical History,首选语,PT,pt,字符,
+mh,既往病史,Medical History,首选语代码,PT code,ptcd,字符,
+mh,既往病史,Medical History,系统器官分类,SOC,soc,字符,
+mh,既往病史,Medical History,系统器官分类代码,SOC code,soccd,字符,
+mah,过敏史,,过敏史,,mahyn,单选,NONE
+mah,过敏史,,序号,,sn,整数,
+mah,过敏史,,过敏原,,mahterm,字符,
+mah,过敏史,,过敏表现,,mahdesc,字符,
+mah,过敏史,,严重程度,,mahsev,单选,MAHSEV
+su_cigr,吸烟史,Smoking Status Change,吸烟状况,Smoking status,suncf,单选,CIGDSTXT
+su_cigr,吸烟史,Smoking Status Change,开始吸烟日期,Date of first use,sustdat,字符,
+su_cigr,吸烟史,Smoking Status Change,戒烟日期,Date of last use,suendat,字符,
+su_cigr,吸烟史,Smoking Status Change,平均每<日>吸烟量,Average number of cigarettes per year,sudose,字符,
+su_cigr,吸烟史,Smoking Status Change,单位,Unit of cigarette,sudosu,单选,TOHXDURU
+su_cigr,吸烟史,Smoking Status Change,吸烟年数,,suyear,字符,
+su_cigr,吸烟史,Smoking Status Change,单位,,suyearu,单选,SUYEARU
+vs,生命体征,Vital Signs,计划检查时间点,,vsptim,单选,VSPTIM
+vs,生命体征,Vital Signs,计划检查时间点,,vsmptim,单选,VSMPTIM
+vs,生命体征,Vital Signs,计划检查时间点,,vssptim,单选,VSSPTIM
+vs,生命体征,Vital Signs,生命体征检查,Vitals collected,vsperf,单选,NOTDONE
+vs,生命体征,Vital Signs,序号,,sn,整数,
+vs,生命体征,Vital Signs,检查日期,Vital signs date,vsdat,日期时间,
+vs,生命体征,Vital Signs,检查时间,Vital signs time,vstim,字符,
+vs_detail,生命体征明细,Vital Signs Details,序号,VS ID,sn,整数,
+vs_detail,生命体征明细,Vital Signs Details,检查项目,Test name,vstest,字符,
+vs_detail,生命体征明细,Vital Signs Details,检查结果,Test result,vsorres,字符,
+vs_detail,生命体征明细,Vital Signs Details,单位,Result unit,vsorresu,字符,
+wt,体重,Weight,体重采集,Weight collected,wtperf,单选,NOTDONE
+wt,体重,Weight,序号,,sn,整数,
+wt,体重,Weight,检查日期,Measurement date,wtdat,日期时间,
+wt,体重,Weight,体重,Weight,weight,字符,
+wt,体重,Weight,体重单位,Weight unit,weightu,单选,WEIGHTU
+wt,体重,Weight,身高,Height,height,字符,
+wt,体重,Weight,身高单位,Height unit,heightu,单选,HEIGHTU
+pe,体格检查,Physical Exam,体格检查,Exam performed？,peperf,单选,NOTDONE
+pe,体格检查,Physical Exam,序号,,sn,整数,
+pe,体格检查,Physical Exam,检查日期,Exam date,pedat,日期时间,
+pe_detail,体格检查明细,Physical Exam Details,序号,PE ID,sn,整数,
+pe_detail,体格检查明细,Physical Exam Details,检查项目,Exam name,petest,字符,
+pe_detail,体格检查明细,Physical Exam Details,检查结果,Result,peres,单选,PEORRES
+pe_detail,体格检查明细,Physical Exam Details,异常请描述,Description,pedesc,字符,
+ecog,ECOG评分,ECOG Performance Score,ECOG评分,Was an ECOG assessment performed,ecogperf,单选,NOTDONE
+ecog,ECOG评分,ECOG Performance Score,序号,,sn,整数,
+ecog,ECOG评分,ECOG Performance Score,评分日期,Performe date,ecogdat,日期时间,
+ecog,ECOG评分,ECOG Performance Score,ECOG评分分值,ECOG performance score,ecogores,单选,ECOGORES
+spo,血氧饱和度,Oxygen saturation,血氧饱和度,Oxygen saturation,spoperf,单选,NOTDONE
+spo,血氧饱和度,Oxygen saturation,序号,,sn,整数,
+spo,血氧饱和度,Oxygen saturation,检查日期,Procedure time,spodat,日期时间,
+spo,血氧饱和度,Oxygen saturation,检测值,Test result(qualitative),sporres,字符,
+spo,血氧饱和度,Oxygen saturation,单位,Result unit,sporresu,单选,SPORRESU
+lb,实验室检查,Laboratory Test Results,模块名称,Lab panel name,lbcat,单选,LBCAT
+lb,实验室检查,Laboratory Test Results,实验室检查,Was the lab performed,lbperf,单选,NOTDONE
+lb,实验室检查,Laboratory Test Results,序号,,sn,整数,
+lb,实验室检查,Laboratory Test Results,采样日期,Lab date,lbdat,日期时间,
+lb,实验室检查,Laboratory Test Results,LAB名称,Lab name,lbname,单选,LABNAME
+lb,实验室检查,Laboratory Test Results,按采样日期计算年龄,Lab age,lbage,整数,
+lb,实验室检查,Laboratory Test Results,年龄单位,Age unit,ageu,单选,AGEU
+lb,实验室检查,Laboratory Test Results,临床意义判断,Clinically Significant,lbclsig,整数,
+lb_detail,实验室检查明细,Laboratory Test Results Details,序号,LB ID,sn,整数,
+lb_detail,实验室检查明细,Laboratory Test Results Details,模块名称,Lab panel name,lbcat,单选,LBCAT
+lb_detail,实验室检查明细,Laboratory Test Results Details,检查项目,Test name,lbtest,字符,
+lb_detail,实验室检查明细,Laboratory Test Results Details,检查结果,Test result,lborres,字符,
+lb_detail,实验室检查明细,Laboratory Test Results Details,单位,Result unit,lborresu,字符,
+lb_detail,实验室检查明细,Laboratory Test Results Details,临床意义判断,Was this result clinically significant,lbclsig,单选,LBCLSIG
+lb_detail,实验室检查明细,Laboratory Test Results Details,参考范围上限值,High limit of laboratory reference range,lbornrhi,字符,
+lb_detail,实验室检查明细,Laboratory Test Results Details,参考范围下限值,Low limit of laboratory reference range,lbornrlo,字符,
+xh,病毒学定性检查,Virology Test,病毒学定性检查,Virology tests performed？,xhperf,单选,NOTDONE
+xh,病毒学定性检查,Virology Test,序号,,sn,整数,
+xh,病毒学定性检查,Virology Test,采样日期,Sample collection date,xhdat,日期时间,
+xh_detail,病毒学定性检查明细,Virology Test Details,序号,XH ID,sn,整数,
+xh_detail,病毒学定性检查明细,Virology Test Details,检查项目,Test name,xhtest,字符,
+xh_detail,病毒学定性检查明细,Virology Test Details,检查结果,Test result,xhorres,单选,NPN
+xho,病毒学定量检查,,模块名称,Panel name,xhocat,单选,XHOCAT
+xho,病毒学定量检查,,序号,XHO ID,sn,整数,
+xho,病毒学定量检查,,病毒学定量检查,,xhoperf,单选,NA
+xho,病毒学定量检查,,采样日期,XHO date,xhodat,日期时间,
+xho,病毒学定量检查,,LAB名称,Lab name,xhoname,单选,LABNAME
+xho_detail,病毒学定量检查明细,,模块名称,Panel name,xhocat,单选,XHOCAT
+xho_detail,病毒学定量检查明细,,序号,XHO ID,sn,整数,
+xho_detail,病毒学定量检查明细,,检查项,Test name,xhotest,字符,
+xho_detail,病毒学定量检查明细,,检查结果,Test result(qualitative),xhoresq,单选,NP
+xho_detail,病毒学定量检查明细,,具体检测值,Test result,xhores,字符,
+xho_detail,病毒学定量检查明细,,指数,,xhoresu,单选,XHORESU
+xho_detail,病毒学定量检查明细,,单位,Result unit,xhooresu,字符,
+eg,12导联心电图,Electrocardiogram,12导联心电图检查,Was the ECG performed,egperf,单选,NOTDONE
+eg,12导联心电图,Electrocardiogram,序号,,sn,整数,
+eg,12导联心电图,Electrocardiogram,检查日期,ECG date,egdat,日期时间,
+eg,12导联心电图,Electrocardiogram,临床意义,Clinical Significance,egclsig,单选,CLSIG
+eg,12导联心电图,Electrocardiogram,异常描述,Abnormity description,egdesc,字符,
+eg_detail,12导联心电图明细,Electrocardiogram Details,序号,EG ID,sn,整数,
+eg_detail,12导联心电图明细,Electrocardiogram Details,检查项目,Test name,egtest,字符,
+eg_detail,12导联心电图明细,Electrocardiogram Details,检查结果,Test result,egorres,字符,
+eg_detail,12导联心电图明细,Electrocardiogram Details,单位,Result unit,egorresu,字符,
+ucg,超声心动图,Echocardiogram,超声心动图,ECG performed？,ucgperf,单选,NOTDONE
+ucg,超声心动图,Echocardiogram,序号,,sn,整数,
+ucg,超声心动图,Echocardiogram,检查日期,Procedure time,ucgdat,日期时间,
+ucg,超声心动图,Echocardiogram,LVEF,LVEF result,lvefres,字符,
+ucg,超声心动图,Echocardiogram,单位,LVEF result unit,lvefresu,单选,LVEFRESU
+ucg,超声心动图,Echocardiogram,临床意义,Clinical Significance,lvefclsi,单选,CLSIG
+ucg,超声心动图,Echocardiogram,异常描述,Abnormity description,lvefdesc,字符,
+pft,肺功能检测,,肺功能检测,,pftperf,单选,NOTDONE
+pft,肺功能检测,,序号,,sn,整数,
+pft,肺功能检测,,检查日期,,pftdat,日期时间,
+pft,肺功能检测,,临床意义,,pftclsi,单选,CLSIG
+pft,肺功能检测,,异常描述,,pftdesc,字符,
+pft_detail,肺功能检测明细,,序号,,sn,整数,
+pft_detail,肺功能检测明细,,检查项目,,pfttest,字符,
+pft_detail,肺功能检测明细,,实测值,,pftorres,字符,
+pft_detail,肺功能检测明细,,实测值单位,,pftoresu,字符,
+pft_detail,肺功能检测明细,,实/预比例,,pftoresq,字符,
+pft_detail,肺功能检测明细,,实/预比例单位,,pforesqu,字符,
+hcg,血妊娠试验,Pregnancy Test,血妊娠试验,Pregnancy test,hcgperf,单选,NOTDONE
+hcg,血妊娠试验,Pregnancy Test,序号,,sn,整数,
+hcg,血妊娠试验,Pregnancy Test,未做原因,Reason for not done,hcgreas,单选,HCGREAS
+hcg,血妊娠试验,Pregnancy Test,其他原因,Other reason for not done,hcgreaso,字符,
+hcg,血妊娠试验,Pregnancy Test,采样日期,Sample collection date,hcgdat,日期时间,
+hcg,血妊娠试验,Pregnancy Test,血妊娠试验结果,Pregnancy result,hcgorres,单选,HCGORRES
+ebc,肿瘤组织生物标记物,,肿瘤组织生物标记物采集,Was sample collected,ebcperf,单选,NOTDONE
+ebc,肿瘤组织生物标记物,,样本采集日期,Sample collection date,ebcdat,字符,
+ebc,肿瘤组织生物标记物,,肿瘤组织,Specimen type,ebccat,单选,EBCCAT
+ebc,肿瘤组织生物标记物,,肿瘤组织采集数量,,ebcorres,字符,
+ebc,肿瘤组织生物标记物,,单位,,ebcoresu,单选,EBCORESU
+ebc,肿瘤组织生物标记物,,肿瘤样本采集部位,,ebcloc,单选,EBCLOC
+ebc,肿瘤组织生物标记物,,备注,,ebccom,字符,
+gmd,基因突变检测,,基因突变检测,,gmdperf,单选,NOTDONE
+gmd,基因突变检测,,序号,,sn,整数,
+gmd,基因突变检测,,检测日期,,gmddat,字符,
+gmd,基因突变检测,,检测样本,,gmdloc,单选,GMDLOC
+gmd,基因突变检测,,基因,,gmdtest,单选,GMDTEST
+gmd,基因突变检测,,其他基因检测项,,gmdtesto,字符,
+gmd,基因突变检测,,检测结果,,gmdorres,单选,NP
+gmd,基因突变检测,,备注,,gmdcom,字符,
+et,PD-L1表达检测,,PD-L1表达检测,,notdone,单选,NOTDONE
+et,PD-L1表达检测,,采样日期,,etdat,日期时间,
+et,PD-L1表达检测,,检测结果,,etres,字符,
+et,PD-L1表达检测,,检测结果单位,,etresu,单选,ETRESU
+et,PD-L1表达检测,,备注,,etcom,字符,
+ie,入排标准,Inclusion/ Exclusion Criteria Not Met,筛选时使用的方案版本号,Protocol version at screening,prover,单选,PROVER
+ie,入排标准,Inclusion/ Exclusion Criteria Not Met,是否符合所有入选标准且不符合所有排除标准,Met criteria,ieyn,单选,YN
+ie,入排标准,Inclusion/ Exclusion Criteria Not Met,入选,Inclusion criteria,intp,整数,
+ie,入排标准,Inclusion/ Exclusion Criteria Not Met,排除,Exclusion?criteria,outtp,整数,
+ie_detail,不符合入选标准/符合排除标准明细,Un-met Criteria,序号,SN,sn,整数,
+ie_detail,不符合入选标准/符合排除标准明细,Un-met Criteria,不符合的入排标准类型,Category of criteria not met,iecat,单选,IECAT
+ie_detail,不符合入选标准/符合排除标准明细,Un-met Criteria,不符合的入排标准序号,Identifier of criteria not met,ieid,字符,
+rand,入组信息,,是否筛选成功,Current subject status,status,单选,RAND_STATUS
+rand,入组信息,,随机日期,,randdat,日期时间,
+rand,入组信息,,未入选主要原因,Reason for screen failed,randreas,单选,RANDREAS
+rand,入组信息,,其他原因,Other reason,randreao,字符,
+exi_otoz,SHR1210/安慰剂给药记录,,计划给药剂量,Planned dose per administration,expdose,单选,EXDOSE
+exi_otoz,SHR1210/安慰剂给药记录,,计划给药剂量单位,Planned dose per administration unit,expdosu,单选,IDOSU
+exi_otoz,SHR1210/安慰剂给药记录,,给药,Was study drug administered,experf,单选,NOTEX
+exi_otoz,SHR1210/安慰剂给药记录,,药物编号,Kit identification of study drug,exkit,字符,
+exi_otoz,SHR1210/安慰剂给药记录,,药物批号,Lot number of study drug,exlot,字符,
+exi_otoz,SHR1210/安慰剂给药记录,,实际给药剂量,Actual dose per administration,exdose,字符,
+exi_otoz,SHR1210/安慰剂给药记录,,实际给药剂量单位,Actual dose per administration unit,exdosu,单选,IDOSU
+exi_otoz,SHR1210/安慰剂给药记录,,给药日期,Start date administered,exstdat,日期时间,
+exi_otoz,SHR1210/安慰剂给药记录,,开始时间,Start time administered,exsttim,字符,
+exi_otoz,SHR1210/安慰剂给药记录,,结束时间,End time administered,exentim,字符,
+exi_otoz,SHR1210/安慰剂给药记录,,输液是否中断,Was the infusion interrupted,exitrpyn,单选,YN
+exi_otoz,SHR1210/安慰剂给药记录,,输液中断原因,Reason for interrupted,exitrp,单选,EXADJ
+exi_otoz,SHR1210/安慰剂给药记录,,中断原因详述,Reason description,exitrpsp,字符,
+exi_otoz,SHR1210/安慰剂给药记录,,未给药原因,,exndreas,单选,EXNDREAS
+exi_otoz,SHR1210/安慰剂给药记录,,未给药原因详述,,exndreap,字符,
+exi_car,卡铂给药记录,,计划给药剂量,Planned dose per administration,expdose,单选,EXDOSEC
+exi_car,卡铂给药记录,,计划给药剂量计算结果,,expdstxt,字符,
+exi_car,卡铂给药记录,,计划给药剂量单位,Planned dose per administration unit,expdosu,单选,IDOSUC
+exi_car,卡铂给药记录,,给药,Was study drug administered,experf,单选,NOTEX
+exi_car,卡铂给药记录,,药物编号,Kit identification of study drug,exkit,字符,
+exi_car,卡铂给药记录,,药物批号,Lot number of study drug,exlot,字符,
+exi_car,卡铂给药记录,,实际给药剂量,Actual dose per administration,exdose,字符,
+exi_car,卡铂给药记录,,实际给药剂量单位,Actual dose per administration unit,exdosu,单选,IDOSU
+exi_car,卡铂给药记录,,给药日期,Start date administered,exstdat,日期时间,
+exi_car,卡铂给药记录,,开始时间,Start time administered,exsttim,字符,
+exi_car,卡铂给药记录,,结束时间,End time administered,exentim,字符,
+exi_car,卡铂给药记录,,剂量是否调整,Was the dose modified,exdosadj,单选,YN
+exi_car,卡铂给药记录,,剂量调整原因,Reason for dose modification,exadj,单选,EXADJ
+exi_car,卡铂给药记录,,剂量调整原因详述,Reason description,exadjsp,字符,
+exi_car,卡铂给药记录,,输液是否中断,Was the infusion interrupted,exitrpyn,单选,YN
+exi_car,卡铂给药记录,,输液中断原因,Reason for interrupted,exitrp,单选,EXADJ
+exi_car,卡铂给药记录,,中断原因详述,Reason description,exitrpsp,字符,
+exi_car,卡铂给药记录,,未给药原因,,exndrea,单选,EXNDREA
+exi_car,卡铂给药记录,,未给药原因详述,,exndreap,字符,
+exi_tax,紫杉醇给药记录,,计划给药剂量,Planned dose per administration,expdose,单选,EXDOSET
+exi_tax,紫杉醇给药记录,,计划给药剂量单位,Planned dose per administration unit,expdosu,单选,IDOSUT
+exi_tax,紫杉醇给药记录,,给药,Was study drug administered,experf,单选,NOTEX
+exi_tax,紫杉醇给药记录,,药物编号,Kit identification of study drug,exkit,字符,
+exi_tax,紫杉醇给药记录,,药物批号,Lot number of study drug,exlot,字符,
+exi_tax,紫杉醇给药记录,,实际给药剂量,Actual dose per administration,exdose,字符,
+exi_tax,紫杉醇给药记录,,实际给药剂量单位,Actual dose per administration unit,exdosu,单选,IDOSU
+exi_tax,紫杉醇给药记录,,给药日期,Start date administered,exstdat,日期时间,
+exi_tax,紫杉醇给药记录,,开始时间,Start time administered,exsttim,字符,
+exi_tax,紫杉醇给药记录,,结束时间,End time administered,exentim,字符,
+exi_tax,紫杉醇给药记录,,剂量是否调整,Was the dose modified,exdosadj,单选,YN
+exi_tax,紫杉醇给药记录,,剂量调整原因,Reason for dose modification,exadj,单选,EXADJ
+exi_tax,紫杉醇给药记录,,剂量调整原因详述,Reason description,exadjsp,字符,
+exi_tax,紫杉醇给药记录,,输液是否中断,Was the infusion interrupted,exitrpyn,单选,YN
+exi_tax,紫杉醇给药记录,,输液中断原因,Reason for interrupted,exitrp,单选,EXADJ
+exi_tax,紫杉醇给药记录,,中断原因详述,Reason description,exitrpsp,字符,
+exi_tax,紫杉醇给药记录,,未给药原因,,exndrea,单选,EXNDREA
+exi_tax,紫杉醇给药记录,,未给药原因详述,,exndreap,字符,
+ae,不良事件,Adverse Events,不良事件,Any AEs,aeyn,单选,NONE
+ae,不良事件,Adverse Events,序号,AE ID,sn,整数,
+ae,不良事件,Adverse Events,不良事件名称,AE term,aeterm,字符,
+ae,不良事件,Adverse Events,是否早于用药发生,AE occurred prior to first study drug administration,aeprior,单选,YN
+ae,不良事件,Adverse Events,开始日期,Start date,aestdat,字符,
+ae,不良事件,Adverse Events,AE的转归,Outcome of AE,aeout,单选,AEOUT
+ae,不良事件,Adverse Events,转归日期,End date,aeendat,字符,
+ae,不良事件,Adverse Events,对SHR1210/安慰剂采取措施,Action taken with study treatment,aeacn,单选,AEACNO
+ae,不良事件,Adverse Events,对SHR1210采取措施,,aeacns,单选,AEACNO
+ae,不良事件,Adverse Events,对紫杉醇采取措施,,aeacnt,单选,AEACN
+ae,不良事件,Adverse Events,对卡铂采取措施,,aeacnc,单选,AEACN
+ae,不良事件,Adverse Events,CTCAE分级,CTC AE grade,aetoxgr,单选,AECTC
+ae,不良事件,Adverse Events,是否有纠正治疗,Other action taken,aecontrt,单选,YN
+ae,不良事件,Adverse Events,与SHR1210/安慰剂的关系,Relationship to study treatment,aerel,单选,REL
+ae,不良事件,Adverse Events,与SHR1210的关系,,aerels,单选,REL
+ae,不良事件,Adverse Events,与紫杉醇的关系,,aerelt,单选,REL
+ae,不良事件,Adverse Events,与卡铂的关系,,aerelc,单选,REL
+ae,不良事件,Adverse Events,是否是严重不良事件,Serious adverse event,aeser,单选,YN
+ae,不良事件,Adverse Events,导致死亡,Resulted in death,aesdth,单选,YN
+ae,不良事件,Adverse Events,危及生命,Life threatening,aeslife,单选,YN
+ae,不良事件,Adverse Events,住院或住院时间延长,Resulted in initial or prolonged hospitalization,aeshosp,单选,YN
+ae,不良事件,Adverse Events,伤残、功能丧失,Resulted in persistent or significant disability or incapacity,aesdisab,单选,YN
+ae,不良事件,Adverse Events,先天畸形/出生缺陷,Associated with a congenital anomaly or birth defect,aescong,单选,YN
+ae,不良事件,Adverse Events,其他重要医学事件,Medically important event not covered by other “serious” criteria,aesmie,单选,YN
+ae,不良事件,Adverse Events,该不良事件是否导致退出试验,Caused study discontinuation,aedis,单选,YN
+ae,不良事件,Adverse Events,是否为特别关注的不良事件,,aesieyn,单选,YN
+ae,不良事件,Adverse Events,是否为免疫相关的不良事件,,aeiraeyn,单选,YNND
+ae,不良事件,Adverse Events,备注,,aecom,字符,
+ae,不良事件,Adverse Events,AE来源,AE Source,ae_source,单选,ae_source
+ae,不良事件,Adverse Events,相关CM序号,Related CM ID,aecmno,字符,
+ae,不良事件,Adverse Events,实验室检查关联,LAB Relevance,lab_ae,字符,
+ae,不良事件,Adverse Events,姑息性手术关联,,aeshno,字符,
+ae,不良事件,Adverse Events,是否已编码,Coding Status,codeyn,单选,YN
+ae,不良事件,Adverse Events,被编码字段值,Coded Term,decod,字符,
+ae,不良事件,Adverse Events,编码字典名称,CodingDict,dictname,字符,
+ae,不良事件,Adverse Events,编码字典版本,DictVersion,dictvers,字符,
+ae,不良事件,Adverse Events,系统器官分类,SOC,soc,字符,
+ae,不良事件,Adverse Events,系统器官分类代码,SOC code,soccd,字符,
+ae,不良事件,Adverse Events,首选语,PT,pt,字符,
+ae,不良事件,Adverse Events,首选语代码,PT code,ptcd,字符,
+ae,不良事件,Adverse Events,低位语,LLT,llt,字符,
+ae,不良事件,Adverse Events,低位语代码,LLT code,lltcd,字符,
+cm,既往及合并用药,,既往及合并用药,Were any medications taken,cmyn,单选,NONE
+cm,既往及合并用药,,序号,CM ID,sn,整数,
+cm,既往及合并用药,,药物名称,Medication term,cmtrt,字符,
+cm,既往及合并用药,,是否在试验开始前用药,Taken prior to first study drug administration,cmprior,单选,YN
+cm,既往及合并用药,,开始日期,Start Date,cmstdat,字符,
+cm,既往及合并用药,,是否持续,Still ongoing,cmongo,单选,YN
+cm,既往及合并用药,,结束日期,End Date,cmendat,字符,
+cm,既往及合并用药,,用药原因,Reason for medication taken,cmreas,单选,CMREAS
+cm,既往及合并用药,,用药原因详述,Reason description,cmindc,字符,
+cm,既往及合并用药,,相关既往病史序号,Related MH ID,cmmhno,字符,
+cm,既往及合并用药,,相关AE序号,Related AE ID,cmaeno,字符,
+cm,既往及合并用药,,每次剂量,Each dose of medication,cmdstxt,字符,
+cm,既往及合并用药,,剂量单位,Unit,cmdosu,单选,DOSU
+cm,既往及合并用药,,其他单位,Other unit,cmdosuo,字符,
+cm,既往及合并用药,,给药途径,Route of administration,cmroute,单选,CMROUTE
+cm,既往及合并用药,,其他途径,Other route,cmrouteo,字符,
+cm,既往及合并用药,,给药频率,Frequency,cmdosfrq,单选,CMDOSFRQ
+cm,既往及合并用药,,其他频率,Other frequency,cmdsfqo,字符,
+cm,既往及合并用药,,备注,,cmcom,字符,
+cnd,合并非药物治疗,Concomitant Therapy,合并非药物治疗,Were any therapies taken,cndyn,单选,NONE
+cnd,合并非药物治疗,Concomitant Therapy,序号,CND ID,sn,整数,
+cnd,合并非药物治疗,Concomitant Therapy,治疗名称,Therapy term,cndtrt,字符,
+cnd,合并非药物治疗,Concomitant Therapy,开始日期,Start date,cndstdat,字符,
+cnd,合并非药物治疗,Concomitant Therapy,是否持续,Still ongoing,cndongo,单选,YN
+cnd,合并非药物治疗,Concomitant Therapy,结束日期,End date,cndendat,字符,
+cnd,合并非药物治疗,Concomitant Therapy,是否与AE相关,AE related,cndynae,单选,YN
+cnd,合并非药物治疗,Concomitant Therapy,AE序号,Related AE identifier,cndaeno,字符,
+cnd,合并非药物治疗,Concomitant Therapy,是否属于姑息性局部治疗,,cndpltyn,单选,YN
+cnd,合并非药物治疗,Concomitant Therapy,备注,Comments,cndcom,字符,
+futrh,姑息性放疗,,姑息性放疗,Follow-up cancer radiotherapy,futrhyn,单选,NONE
+futrh,姑息性放疗,,序号,FUTRH ID,sn,整数,
+futrh,姑息性放疗,,放疗部位,Site,furhloc,单选,TULOC
+futrh,姑息性放疗,,其他部位,Other site,furhloco,字符,
+futrh,姑息性放疗,,开始日期,Start date,furhsdat,字符,
+futrh,姑息性放疗,,结束日期,End date,furhedat,字符,
+futrh,姑息性放疗,,放射总剂量,Total cumulative dose,furhdose,字符,
+futrh,姑息性放疗,,剂量单位,Dose unit,furhdosu,单选,TRHDOSU
+futrh,姑息性放疗,,其他单位,Other dose unit,furhdsuo,字符,
+csh,姑息性手术,,姑息性手术,Follow-up surgery history,cshyn,单选,NONE
+csh,姑息性手术,,序号,CSH ID,sn,整数,
+csh,姑息性手术,,手术名称,Surgical procedure,cshtrt,字符,
+csh,姑息性手术,,手术日期,Date of surgery,cshstdat,字符,
+csh,姑息性手术,,手术部位,Specific location,cshloc,单选,TULOC
+csh,姑息性手术,,其他部位,Other location,cshloco,字符,
+csh,姑息性手术,,是否出现术后并发症,,cshpoco,单选,YN
+bbm,外周血生物标志物,,计划采样时间,,bbmptim,单选,BBMPTIM
+bbm,外周血生物标志物,,外周血生物标志物采集,,bbmperf,单选,NOTDONE
+bbm,外周血生物标志物,,序号,,sn,整数,
+bbm,外周血生物标志物,,样本采样日期,,bbmdat,日期时间,
+bbm,外周血生物标志物,,采样时间,,bbmtim,字符,
+ch,反应性毛细血管增生观察表,,是否发生反应性毛细血管增生,,chyn,单选,YN
+ch,反应性毛细血管增生观察表,,序号,,sn,整数,
+ch,反应性毛细血管增生观察表,,检查日期,,chdat,日期时间,
+ch,反应性毛细血管增生观察表,,部位,,chloc,单选,CHLOC
+ch,反应性毛细血管增生观察表,,其他部位请说明,,chloco,字符,
+ch,反应性毛细血管增生观察表,,数量,,chnum,单选,CHNUM
+ch,反应性毛细血管增生观察表,,最大直径,,chmadi,字符,
+ch,反应性毛细血管增生观察表,,最大直径单位,,chmadiu,单选,CHMADIU
+ch,反应性毛细血管增生观察表,,其他特征描述,,chspe,字符,
+ch,反应性毛细血管增生观察表,,有无合并情况,,chcyn,单选,YW
+ch,反应性毛细血管增生观察表,,感染,,chinf,单选,YN
+ch,反应性毛细血管增生观察表,,溃疡,,chulcer,单选,YN
+ch,反应性毛细血管增生观察表,,疼痛,,chpain,单选,YN
+ch,反应性毛细血管增生观察表,,出血,,chhae,单选,YN
+ch,反应性毛细血管增生观察表,,其他,,choth,单选,YN
+ch,反应性毛细血管增生观察表,,其他合并情况请说明,,chcdeso,字符,
+ch,反应性毛细血管增生观察表,,出血量,,chblee,字符,
+ch,反应性毛细血管增生观察表,,出血量单位,,chbleeu,单选,CHBLEEU
+ch,反应性毛细血管增生观察表,,是否行针对性治疗,,chthyn,单选,YN
+ch,反应性毛细血管增生观察表,,治疗方式,,chth,单选,CHTH
+ch,反应性毛细血管增生观察表,,其他治疗方式请说明,,chtho,字符,
+ch,反应性毛细血管增生观察表,,对比上一次变化情况,,chout,单选,OUT
+ch,反应性毛细血管增生观察表,,是否留取病理报告,,chpryn,单选,YN
+ch,反应性毛细血管增生观察表,,病理结果,,chpres,字符,
+ch,反应性毛细血管增生观察表,,备注,,chcom,字符,
+pdicf,PD后揭盲情况,,是否由独立影像评估确证疾病进展,,pdidtu,单选,YN
+pdicf,PD后揭盲情况,,PD后揭盲日期,,pddat,日期时间,
+pdicf,PD后揭盲情况,,揭盲结果,,pdres,单选,PDRES
+pdicf,PD后揭盲情况,,是否进行交叉入组筛选,,pdperf,单选,YN
+pdicf,PD后揭盲情况,,PD后是否签署知情同意书,,pdicf,单选,YN
+pdicf,PD后揭盲情况,,交叉入组知情同意书签署日期,,pdicdat,日期时间,
+pdicf,PD后揭盲情况,,备注,,pdicfcom,字符,
+tu,肿瘤影像学,,模块名称,Panel name,tucat,单选,TUCAT
+tu,肿瘤影像学,,病灶序号,,sn,整数,
+tu,肿瘤影像学,,病灶部位,Site,tuloc,单选,TULOC
+tu,肿瘤影像学,,部位描述,Site description,tulocsp,字符,
+tu_detail,病灶测量,,模块名称,Panel name,tucat,单选,TUCAT
+tu_detail,病灶测量,,序号,TUD ID,sn,整数,
+tu_detail,病灶测量,,当前访视阶段,Visit,tuvisit,单选,TRVISIT
+tu_detail,病灶测量,,测量日期,Exam/scan date,tudat,日期时间,
+tu_detail,病灶测量,,测量方法,Method,tumethod,单选,TUMETHOD
+tu_detail,病灶测量,,其他测量方法,Other method,tumetoth,字符,
+tu_detail,病灶测量,,新病灶是否可测量,Can new lesions be measured?,tumeasyn,单选,YN
+tu_detail,病灶测量,,是否测量新病灶径值,,tumeayn,单选,YN
+tu_detail,病灶测量,,病灶长径值,Longest diameter,tutlorrs,字符,
+tu_detail,病灶测量,,病灶短径值,Shortest diameter,tutsorrs,字符,
+tu_detail,病灶测量,,径值单位,Lesion measurement unit,tutorrsu,单选,TRTORRSU
+tu_detail,病灶测量,,病灶状况,Lesion's status,tunorrs,单选,TRNORRS
+tu_detail,病灶测量,,不能精确测量的原因,Reason that cannot be accurately measured,dlrnk,单选,DLRNK
+tu_detail,病灶测量,,是否与其他病灶融合或分裂,Fusion or Fission,lesspl,单选,LESSPL
+rs,肿瘤疗效评估,,当前访视阶段,Visit,trvisit,单选,RSVISIT
+rs,肿瘤疗效评估,,是否进行肿瘤疗效评估,Tumor assessment performed？,rsyn,单选,YN
+rs,肿瘤疗效评估,,序号,,sn,整数,
+rs,肿瘤疗效评估,,肿瘤疗效评估日期,Assessment date,rsdat,日期时间,
+rs,肿瘤疗效评估,,靶病灶疗效评估,TL response assessment,rstorrs,单选,RSTORRS
+rs,肿瘤疗效评估,,非靶病灶疗效评估,Non-TL response assessment,rsnorrs,单选,RSNORRS
+rs,肿瘤疗效评估,,是否有新病灶发生,Any new lesions？,rsnewyn,单选,YN
+rs,肿瘤疗效评估,,肿瘤疗效总评估,Overall assessment,rsorres,单选,RSORRES
+ctrand,交叉入组信息,,交叉入组筛选结果,,ctscreen,单选,CTSCREEN
+ctrand,交叉入组信息,,筛选失败原因,,randreas,单选,RANDREAS
+ctrand,交叉入组信息,,其他原因,,randreao,字符,
+eot_otoz,SHR1210/安慰剂治疗结束页,,药物名称,Study drug term,eotcat,单选,EOTCATS
+eot_otoz,SHR1210/安慰剂治疗结束页,,治疗结束状态,Current treatment status of subject,eotterm,单选,EOTSTATUS
+eot_otoz,SHR1210/安慰剂治疗结束页,,治疗结束日期,Date of decision to discontinue treatment,eotdat,日期时间,
+eot_otoz,SHR1210/安慰剂治疗结束页,,治疗终止主要原因,Indicate primary reason for discontinuation of treatment,eotreas,单选,EOTREASO
+eot_otoz,SHR1210/安慰剂治疗结束页,,治疗终止主要原因详述,Reason description,eotpisp,字符,
+eot,治疗结束页,,药物名称,Study drug term,eotcat,单选,EOTCAT
+eot,治疗结束页,,治疗结束状态,Current treatment status of subject,eotterm,单选,EOTSTATU
+eot,治疗结束页,,治疗结束日期,Date of decision to discontinue treatment,eotdat,日期时间,
+eot,治疗结束页,,治疗终止主要原因,Indicate primary reason for discontinuation of treatment,eotreas,单选,EOTREAS
+eot,治疗结束页,,治疗终止主要原因详述,Reason description,eotpisp,字符,
+tel,电话随访,,电话随访计划时间点,,telpdat,单选,TELPDAT
+tel,电话随访,,是否完成电话随访,,telyn,单选,YN
+tel,电话随访,,序号,,sn,整数,
+tel,电话随访,,未完成随访原因,,telrea,单选,TELREA
+tel,电话随访,,其他原因,,telreao,字符,
+tel,电话随访,,随访日期,,teldat,日期时间,
+tel,电话随访,,随访详细说明,,teldesc,字符,
+fu,生存随访,Follow-up For Survival,随访阶段,Visit,fuvisit,单选,FUVISIT
+fu,生存随访,Follow-up For Survival,生存期随访,Do follow-up for survival?,fuyn,单选,NOTDONE
+fu,生存随访,Follow-up For Survival,序号,FU ID,sn,整数,
+fu,生存随访,Follow-up For Survival,随访日期,Date of follow-up,fudat,日期时间,
+fu,生存随访,Follow-up For Survival,受试者状态,Status,fustat,单选,FUSTAT
+futch,后续系统性抗肿瘤治疗,Follow-up Systemic Cancer Therapy,后续系统性抗肿瘤治疗,Follow-up systemic cancer therapy,futchyn,单选,NONE
+futch,后续系统性抗肿瘤治疗,Follow-up Systemic Cancer Therapy,序号,FUTCH Identifier,sn,整数,
+futch,后续系统性抗肿瘤治疗,Follow-up Systemic Cancer Therapy,方案,Chemotherapy regimen(s),fuchtrt,字符,
+futch,后续系统性抗肿瘤治疗,Follow-up Systemic Cancer Therapy,总疗程数,Total treatment cycle(s),fuchcour,字符,
+futch,后续系统性抗肿瘤治疗,Follow-up Systemic Cancer Therapy,治疗结局,Outcome of the treatment,fuchout,单选,TCHOUT
+futch,后续系统性抗肿瘤治疗,Follow-up Systemic Cancer Therapy,其他结局,Other,fuchouto,字符,
+futch,后续系统性抗肿瘤治疗,Follow-up Systemic Cancer Therapy,进展日期,Date of progressive disease,fuchpdat,字符,
+futch_detail,后续系统性抗肿瘤治疗明细,Follow-up Systemic Cancer Therapy Detail,序号,,sn,整数,
+futch_detail,后续系统性抗肿瘤治疗明细,Follow-up Systemic Cancer Therapy Detail,药物名称,Medication term,futchtrt,字符,
+futch_detail,后续系统性抗肿瘤治疗明细,Follow-up Systemic Cancer Therapy Detail,治疗类型,Type of the treatment,fuchcat,单选,TCHCAT
+futch_detail,后续系统性抗肿瘤治疗明细,Follow-up Systemic Cancer Therapy Detail,其他类型,Other type,fuchocat,字符,
+futch_detail,后续系统性抗肿瘤治疗明细,Follow-up Systemic Cancer Therapy Detail,每次剂量,Dose,fuchdose,字符,
+futch_detail,后续系统性抗肿瘤治疗明细,Follow-up Systemic Cancer Therapy Detail,剂量单位,Dose unit,fuchdosu,单选,DOSU
+futch_detail,后续系统性抗肿瘤治疗明细,Follow-up Systemic Cancer Therapy Detail,其他单位,Other dose unit,fuchdsuo,字符,
+futch_detail,后续系统性抗肿瘤治疗明细,Follow-up Systemic Cancer Therapy Detail,给药频率,Frequency,fuchdsfq,单选,PTRDSFQ
+futch_detail,后续系统性抗肿瘤治疗明细,Follow-up Systemic Cancer Therapy Detail,其他频率,Other frequency,fucdsfqo,字符,
+futch_detail,后续系统性抗肿瘤治疗明细,Follow-up Systemic Cancer Therapy Detail,开始日期,Start Date,fuchsdat,字符,
+futch_detail,后续系统性抗肿瘤治疗明细,Follow-up Systemic Cancer Therapy Detail,是否持续,Ongoing,fucyn,单选,YN
+futch_detail,后续系统性抗肿瘤治疗明细,Follow-up Systemic Cancer Therapy Detail,结束日期,End Date,fuchedat,字符,
+add,计划外单一检查项,,计划外检查,Was an unscheduled test performed,addperf,单选,NOTDONE
+add,计划外单一检查项,,序号,ADD ID,sn,整数,
+add,计划外单一检查项,,检查项目,Test name,addtrt,字符,
+add,计划外单一检查项,,检查原因,Test reason,addreas,字符,
+add,计划外单一检查项,,检查日期,Test date,adddat,日期时间,
+add,计划外单一检查项,,检查结果,Test result,addorres,字符,
+add,计划外单一检查项,,临床意义,Clinical Significance,addclsig,单选,CLSIG
+add,计划外单一检查项,,备注,Comments,addcom,字符,
+ds,研究总结页,End Of Study,研究结束状态,Study end status,dsterm,单选,DS_STATUS
+ds,研究总结页,End Of Study,研究终止原因,Indicate the primary reason why the subject discontinued,dsreas,单选,DSREAS
+ds,研究总结页,End Of Study,研究终止原因详述,Reason description,dspisp,字符,
+ds,研究总结页,End Of Study,最后获知受试者生存日期,Last date of contact with the subject,losdat,日期时间,
+ds,研究总结页,End Of Study,撤回知情同意日期,Date consent withdrawn,cwdat,日期时间,
+ds,研究总结页,End Of Study,死亡原因,Primary cause of death,dthreas,单选,DTHREAS
+ds,研究总结页,End Of Study,其他死亡原因,Other reason,dthoth,字符,
+ds,研究总结页,End Of Study,死亡日期,Date of death,dthdat,字符,
+pfu,妊娠报告/随访,,孕/产妇是否为男性受试者的女性伴侣,,pfucwho,单选,YN
+pfu,妊娠报告/随访,,末次月经日期,,mensdtc,字符,
+pfu,妊娠报告/随访,,妊娠结果,,pfustat,单选,PFUSTAT
+pfu,妊娠报告/随访,,正常分娩日期,,pfunldat,日期时间,
+pfu,妊娠报告/随访,,死产/流产日期,,pfuabdat,日期时间,
+pfu,妊娠报告/随访,,胎儿异常详述,,pfetdesc,字符,
+pfu,妊娠报告/随访,,是否是严重不良事件,,pfuser,单选,YN
+pfu,妊娠报告/随访,,死亡,,pfusdth,单选,YN
+pfu,妊娠报告/随访,,导致住院/住院时间延长,,pfushosp,单选,YN
+pfu,妊娠报告/随访,,导致显著或永久的人体伤残或者器官功能的损伤,,pfsdisab,单选,YN
+pfu,妊娠报告/随访,,危及生命,,pfuslife,单选,YN
+pfu,妊娠报告/随访,,先天性畸形或出生缺陷,,pfuscong,单选,YN
+pfu,妊娠报告/随访,,重要医学事件,,pfusmie,单选,YN
