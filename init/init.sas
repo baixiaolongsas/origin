@@ -24,8 +24,8 @@ Ver# Peer Reviewer        Code History Description
 %global study root ;
 
 
-%let study=%str(shr_1210_iii_301_esc);
-%let root=D:\HR_PROJECTS\shr_1210_iii_301_esc;
+%let study=%str(SHR-1314-103);
+%let root=D:\HR_PROJECTS\SHR-1314-103;
 
 
 
