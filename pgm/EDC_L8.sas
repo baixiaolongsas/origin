@@ -2,7 +2,7 @@
 CODE NAME                 : <L_>
 CODE TYPE                 : <listing >
 DESCRIPTION               : <> 
-SOFTWARE/VERSION#         : <SAS 9.3>
+SOFTWARE/VERSION#         : <SAS 9.4>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
@@ -18,36 +18,51 @@ REVISION HISTORY SECTION:
 	
 Ver# Peer Reviewer        Code History Description
 ---- ----------------     ------------------------------------------------
-01		Weixin				2017-4-27
+01		Weixin				2018-07-24
 **eoh**********************************************************************************/;
-dm log 'clear';
-proc datasets lib=work nolist kill; run;
-%include '..\init\init.sas' ;
+/*dm log 'clear';*/
+/*proc datasets lib=work nolist kill; run;*/
+/*%include '..\init\init.sas' ;*/
 
 /*value $f1_fmt '1'='未处理' '2'='已处理' '3'='已关闭';*/
 /*dm log 'clear';*/
 
+/**/
+/*proc sql;*/
+/*create table EDC.zyb_un(drop =subjinit) as*/
+/*select * from EDC.zyb where zt ='1' ;*/
+/*;*/
+/**/
+/**/
+/*create table EDC.zyb_rep (drop =subjinit) as*/
+/*select * from EDC.zyb*/
+/*where zt ='2' */
+/*;*/
+/**/
+/**/
+/*quit;*/
 
-proc sql;
-create table EDC.zyb_un as
-select * from EDC.zyb where zt ='1' ;
-;
+data EDC.zyb_un;
+set EDC.zyb;
+if zt ='1';
+drop pub_rid subject xmmc lockstat subjinit;
+run;
 
 
-create table EDC.zyb_rep as
-select * from EDC.zyb
-where zt ='2' 
-;
+data EDC.zyb_rep;
+set EDC.zyb;
+if zt ='2';
+drop pub_rid subject xmmc lockstat subjinit;
+run;
 
 
+data out.L6(label='未回复质疑');
+set EDC.zyb_un;
+run;
 
-quit;
-
-
-data out.l8(label='未回复质疑'); set EDC.zyb_un; run;
-data out.l9(label='已回复未确认质疑'); set EDC.zyb_rep; run;
-
-
+data out.L7(label='已回复未确认质疑');
+set EDC.zyb_rep;
+run;
 
 
 

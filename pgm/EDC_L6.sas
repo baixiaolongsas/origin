@@ -14,17 +14,17 @@ ASSUMPTIONS               : <	>
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 REVISION HISTORY SECTION:
- Author & xwei
+ Author & shis
 	
 Ver# Peer Reviewer        Code History Description
 ---- ----------------     ------------------------------------------------
-01					2017-11-02
+01		 Shishuo		     2018-07-24
 **eoh**********************************************************************************
 *****************************************************************************************/
 
-dm log 'clear';
-proc datasets lib=work nolist kill; run;
-%include '..\init\init.sas' ;
+/*dm log 'clear';*/
+/*proc datasets lib=work nolist kill; run;*/
+/*%include '..\init\init.sas' ;*/
 
 %let visit=visit;/*访视阶段的变量名，是否有的项目的该变量名为svstage？*/
 %let visitnum=visitnum; /*访视序号的变量名，是否有的项目的该变量名为其他的？*/
@@ -142,8 +142,10 @@ quit;
 data EDC.unsub;
 	retain studyid siteid subjid status icfdat visit pub_tname    sn  dat lockstat lastmodifytime;
 	set prefinal;
-	keep studyid siteid subjid status icfdat visit pub_tname    sn  dat lockstat lastmodifytime;
-	label sn='序号' dat='参考日期';
+	data=datepart(input(lastmodifytime,is8601DT.));
+	dif=today()-data;
+	keep studyid siteid subjid status icfdat visit pub_tname    sn  dat lockstat lastmodifytime dif;
+	label sn='序号' dat='参考日期' dif='未提交距今天数';
 run;
 
 
@@ -153,4 +155,6 @@ proc sql;
 quit;
 
 
-data out.l7(label='未提交页面汇总'); set  EDC.unsub; run;
+data out.L5(label='未提交页面汇总');
+set EDC.unsub;
+run;

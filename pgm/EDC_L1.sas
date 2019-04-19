@@ -6,8 +6,8 @@ SOFTWARE/VERSION#         : <SAS 9.4>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
 BROAD-USE MODULES         : <	>
-INPUT                     : < bioknow 1.0>
-OUTPUT                    : < 、 >
+INPUT                     : <   >
+OUTPUT                    : <   >
 VALIDATION LEVEL          : <	>
 REQUIREMENTS              : <	>
 ASSUMPTIONS               : <	>
@@ -18,15 +18,15 @@ REVISION HISTORY SECTION:
 	
 Ver# Peer Reviewer        Code History Description
 ---- ----------------     ------------------------------------------------
-01		Weixin				2016-7-25
+01		Weixin				2018-07-24
 **eoh**********************************************************************************/;
 
-
-dm log 'clear';
-proc datasets lib=work nolist kill; run;
-%include '..\init\init.sas' ;
+/**/
+/*dm log 'clear';*/
+/*proc datasets lib=work nolist kill; run;*/
+/*%include '..\init\init.sas' ;*/
 proc sql;
-	create table hchzb_sum as select input(jl,best.) as jl,yhczdsly 'CRA已核查字段数量',xhczdzsl 'CRA需核查字段数量' from edc.hchzb where xhczdzsl>yhczdsly;
+	create table hchzb_sum as select input(jl,best.) as jl,yhczdsly 'CRA已核查字段数量',xhczdzsl 'CRA需核查字段数量' from edc.hchzb ;
 quit;
  proc format library=RAW cntlout=work.cntlfmt;quit;
  proc sort data=cntlfmt(keep=FMTNAME LENGTH) nodupkeys out=fmt;by _all_;run;
@@ -137,6 +137,13 @@ proc sort; by 	subjid 	visitnum 	svnum tid;run;
 
 %mend;
 %formatall;
+
+data edc.all_verb;
+set final(where=(siteid ne ''));
+keep subjid siteid sitename lockstat yhczdsly xhczdzsl;
+run;
+
+
 %macro test;
 DATA abs_final;
 	SET final;
@@ -163,20 +170,62 @@ run;
 %test;
 
 data edc.unsdv_cra;
-	set abs_final;
+	set abs_final(where=(xhczdzsl>yhczdsly));
 	if lockstat ne '未提交';
 	drop x length WARNING creator createtime modify ;
 run;
 
 
 
+/*data azqb;*/
+/*set edc.visittable;*/
+/*keep visitname visitid;     */
+/*rename visitid=visitnum;*/
+/*proc sort nodupkey;*/
+/*by  visitnum visitname;*/
+/*run;*/
+
+
 proc sql;
-	create table EDC.sdvnumview as select siteid,(sum(input(hchzb.xhczdzsl,best.))-sum(input(hchzb.yhczdsly,best.))) as sdvnum '未SDV字段数',sum(input(hchzb.xhczdzsl,best.)) as sdvznum '需SDV字段数',
-	round(sum( input(hchzb.xhczdzsl,best.)-input(hchzb.yhczdsly,best.))/sum(input(hchzb.xhczdzsl,best.))*100,0.0001) as sdvrate '未SDV百分率(%)' from EDC.hchzb 
-	left join EDC.spjlb spjlb on spjlb.jl=COALESCE(hchzb.ejzbfjl,hchzb.jl,) and spjlb.dqzt NE '00'  
-	left join DERIVED.subject subject on subject.pub_rid=COALESCE(hchzb.fzbdrkbjl,hchzb.jl) where dqzt is not null and subject.siteid is not null 
-	 group by subject.siteid ;
+/**/
+/*	create table allsdvnum_sub as */
+/*	select siteid,sum(input(xhczdzsl,best.)) as allverb '全部字段数' from edc.all_verb(where =(lockstat ne '未提交'))  group by siteid;*/
+
+/*中心汇总率*/
+	create table edc.sdv_siteid as 
+    select  distinct a.sitename,a.siteid,(sum(input(a.xhczdzsl,best.))-sum(input(a.yhczdsly,best.))) as sdvnum '未SDV字段数',
+    sum(input(a.xhczdzsl,best.)) as sdvznum '需SDV字段数',
+	sum(input(a.yhczdsly,best.)) as sdvznum2 '已SDV字段数',
+	round(sum( input(a.xhczdzsl,best.)-input(a.yhczdsly,best.))/sum(input(a.xhczdzsl,best.))*100,0.0001) as sdvrate '未SDV百分率(%)' 
+    from edc.all_verb (where =(lockstat ne '未提交')) a 
+/*	left join allsdvnum_sub b on a.siteid=b.siteid*/
+	group by a.siteid,a.sitename
+	order by a.siteid,a.sitename
+;
+
+
+	create table sdvnumview as 
+    select siteid,(sum(input(xhczdzsl,best.))-sum(input(yhczdsly,best.))) as sdvnum '未SDV字段数',
+    sum(input(xhczdzsl,best.)) as sdvznum '需SDV字段数',
+	sum(input(yhczdsly,best.)) as sdvznum2 '已SDV字段数',
+	round(sum( input(xhczdzsl,best.)-input(yhczdsly,best.))/sum(input(xhczdzsl,best.))*100,0.0001) as sdvrate '未SDV百分率(%)' from edc.unsdv_cra 
+	group by siteid ;
+
+	create table allsdvnum as 
+	select siteid,sum(input(xhczdzsl,best.)) as allverb '全部字段数' from edc.all_verb group by siteid;
+
+	
+/*汇总sdv率*/
+	create table edc.sdvnumview as select a.siteid,a.allverb,coalesce(b.sdvnum,0) as  sdvnum '未SDV字段数',
+	coalesce(b.sdvznum,0) as  sdvznum '需SDV字段数',
+	coalesce(b.sdvrate,0) as  sdvrate '未SDV百分率(%)' from allsdvnum as a
+	left join sdvnumview as b on a.siteid=b.siteid
+	order by a.siteid
+	;
 quit;
 
-data out.l4(label='CRA未核查页明细'); set edc.unsdv_cra; run;
 
+
+data out.L4(label='CRA未核查页明细');
+set edc.unsdv_cra;
+run;
