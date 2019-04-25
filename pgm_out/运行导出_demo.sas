@@ -23,6 +23,7 @@ Ver# Peer Reviewer        Code History Description
 dm log 'clear';
 proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
+proc datasets library=out kill; quit;
 
 %include '.\Uncompress.sas' ;
 %include '.\GET_DATA.sas' ;
@@ -35,4 +36,4 @@ proc datasets lib=work nolist kill; run;
 %include '..\pgm\DC_L6.sas';
 
 
-%m_exportxlsx(title=,creator=);
+%m_exportxlsx(title=,creator=,num=);
