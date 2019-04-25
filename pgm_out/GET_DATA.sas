@@ -29,7 +29,6 @@ options fmtsearch=(work raw derived edc) nofmterr;
 %m_get_derived;
 /*%m_get_edc;*/
 
-libname out "&root\data\out";
 
 
 %include "..\data\edc\sfzqb\adife_hd_extract.sas";

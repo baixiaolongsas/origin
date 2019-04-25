@@ -23,6 +23,8 @@ Ver# Peer Reviewer        Code History Description
 dm log 'clear';
 proc datasets lib=work nolist kill; run;
 %include '..\init\init.sas' ;
+proc datasets library=out kill; quit;
+
 /*%include '.\Uncompress.sas' ;*/
 %include '.\GET_DATA.sas';
 
@@ -32,8 +34,9 @@ proc datasets lib=work nolist kill; run;
 %include '..\pgm\EDC_L5.sas';
 %include '..\pgm\EDC_L6.sas';
 %include '..\pgm\EDC_L7.sas';
+options fmtsearch=(work raw derived edc) nofmterr;
 %include '..\pgm\EDC_L8.sas';
 
 
 options fmtsearch=(work raw derived edc) nofmterr;
-%m_exportxlsx(title=进展报告,creator=史硕);
+%m_exportxlsx(title=进展报告,creator=史硕,num=1);
