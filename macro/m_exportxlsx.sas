@@ -1,7 +1,7 @@
 /*soh**********************************************************************************
 CODE NAME                 : <m_exportxlsx.sas>
 CODE TYPE                 : <macro >
-DESCRIPTION               : <生成无格式数据> 
+DESCRIPTION               : <生成excel列表> 
 SOFTWARE/VERSION#         : <SAS 9.4>
 INFRASTRUCTURE            : <System>
 LIMITED-USE MODULES       : <   >
@@ -23,7 +23,7 @@ Ver# Peer Reviewer        Code History Description
 
 
 
-%macro m_exportxlsx(title=,creator=) ;
+%macro m_exportxlsx(title=,creator=,num=) ;
 
 proc template;
 define style Styles.tag_1;
@@ -160,8 +160,7 @@ OPTIONS FORMCHAR="|----|+|---+=|-/\<>*";
 ods excel close;
 ods  listing;
 
-PROC DATASETS LIBRARY = out  KILL;
-QUIT;
+
 
 /*对导出的次数进行计数*/
 data temp1; 
@@ -170,6 +169,7 @@ data temp1;
   title="&title.";
   creator="&creator.";
   creatime=put(input("&sysdate.",date7.),yymmdd10.);
+  num="&num.";
 run;
 
 PROC IMPORT OUT= WORK.temp
@@ -182,17 +182,18 @@ PROC IMPORT OUT= WORK.temp
      USEDATE=YES;
      SCANTIME=YES;
 RUN;
+
 data temp2; 
-  length projects title creator creatime $50 ;
+  length projects title creator creatime num $50 ;
   set temp; 
-  format projects title creator creatime $50. ;
+  format projects title creator creatime num $50. ;
 run;
 
 data summary;
-  length projects title creator creatime $50 ;
+  length projects title creator creatime num $50 ;
   set temp2 temp1; 
 run;
-proc sort; by projects title creatime; run;
+proc sort nodupkeys; by title creator creatime projects num; run;
 
 ods listing close; 
 ods RESULTS off; 
@@ -210,7 +211,6 @@ ods excel close;
 ods listing;
 
 %mend;
-
 
 
 
