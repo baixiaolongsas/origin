@@ -73,22 +73,16 @@ data sub_v_sv_hc;
 	if a;
 run;
 /*去除已选择未采集的crf*/
-/***************************  暂无uncollect up ********************************/
-/*data uncollect;*/
-/*	length svnum $20;*/
-/*	set derived.uncollect(keep=recordid svnum visitnum visitnum tableid status where=(status='已确认') rename=(svnum=svnum1));*/
-/*	rename recordid=pub_rid visitnum=visitid tableid=domain;*/
-/*	svnum=svnum1;*/
-/*	drop status svnum1;*/
-/*run;*/
 
 data uncollect;
-  pub_rid='';
-  visitid='';
-  domain='';
-  svnum='';
-run; 
-/***************************  暂无uncollect dowwn********************************/
+	length svnum $20;
+	set derived.uncollect(keep=recordid svnum visitnum visitnum tableid status where=(status='已确认') rename=(svnum=svnum1));
+	rename recordid=pub_rid visitnum=visitid tableid=domain;
+	svnum=svnum1;
+	drop status svnum1;
+run;
+
+
 
 proc sort data=uncollect nodupkeys dupout=a;by pub_rid visitid domain svnum;run;
 
@@ -168,7 +162,8 @@ proc freq data=prefinal_31; table dmname; run;
 /*对照组受试者不需要出现1210给药记录、免疫原性和药物浓度、反应性毛细血管增生观察表、阿帕替尼用药记录、阿帕替尼发放记录、阿帕替尼回收记录、SHR-1210治疗结束页、PD后继续治疗疗效评估的页面缺失*/
 data prefinal_4;
 	set prefinal_31;
-	if randgrop='对照组' and dmname in('SHR-1210给药记录' '免疫原性和药物浓度采血') then delete;
+	if randgrop='对照组' and dmname in('SHR-1210给药记录' '免疫原性和药物浓度采血' '反应性毛细血管增生观察表' '阿帕替尼用药记录' '阿帕替尼发放记录' '阿帕替尼回收记录' 'SHR-1210治疗结束页' '阿帕替尼治疗结束页' 'PD后继续治疗疗效评估') then delete;
+	if dmname in('阿帕替尼用药记录' '阿帕替尼发放记录') and visitname in ('C1D1' 'C2D1' 'C3D1' 'C4D1') then delete;
 	if crfnum1 ne crfnum and jl='' and crfnum1 ne 0;
 	if today()-input(&visdat.,yymmdd10.)>15 or visdat_ ne '';
 run;
