@@ -32,12 +32,12 @@ proc datasets library=out kill; quit;
 %include '.\Uncompress.sas' ;
 %include '.\GET_DATA.sas' ;
 
+%include '..\pgm\EDC_L6.sas';
 %include '..\pgm\EDC_L1.sas';
 /*%include '..\pgm\EDC_L2.sas';*/
 /*%include '..\pgm\EDC_L3.sas';*/
 %include '..\pgm\EDC_L4.sas';
 %include '..\pgm\EDC_L5.sas';
-%include '..\pgm\EDC_L6.sas';
 %include '..\pgm\EDC_L7.sas';
 %include '..\pgm\EDC_L8.sas';
 %include '..\pgm\EDC_L9.sas';
