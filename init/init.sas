@@ -24,8 +24,8 @@ Ver# Peer Reviewer        Code History Description
 %global study root ;
 
 
-%let study=%str(HR-FMTN-IId_III-CRC);
-%let root=D:\HR_PROJECTS\HR-FMTN-IId_III-CRC;
+%let study=%str(shr_1210_iii_301_esc);
+%let root=D:\HR_PROJECTS\shr_1210_iii_301_esc;
 
 
 
@@ -77,12 +77,12 @@ proc sort;by fname;run;
 
 data _null_;
   set vname;
-  pattern=prxparse("/_(\d{8})\B/o");
-/*  pattern=prxparse("/SAS_\S(\S{10})\b/o");*/
+/*  pattern=prxparse("/_(\d{8})\B/o");*/
+  pattern=prxparse("/SAS_\S(\S{10})\b/o");
   position=prxmatch(pattern,fname);
   if position ne 0 then date1=prxposn(pattern,1,fname);
-  date2=input(date1,yymmdd8.);
-/*  date2=input(date1,yymmdd10.);*/
+/*  date2=input(date1,yymmdd8.);*/
+  date2=input(date1,yymmdd10.);
   date3=put(date2,yymmdd10.);
   if _n_=1 then call symputx ("rawdate",date3,global);
 run;
