@@ -119,9 +119,9 @@ proc sort;by subjid;run;
 %bootstrap2(data=fpd,data2=fpd1,key=%STR(tcmyn,fudat),ID=fpd_ref_field);
 
 
-data out.l21(label=父子表核查pe);set final_pe1;run;
-data out.l22(label=父子表核查rsnl);set final_rsnl1;run;
-data out.l23(label=父子表核查fup);set final_fup1;run;
-data out.l24(label=父子表核查fpd);set final_fpd1;run;
+data out.l1(label=父子表核查pe);set final_pe1;run;
+data out.l2(label=父子表核查rsnl);set final_rsnl1;run;
+data out.l3(label=父子表核查fup);set final_fup1;run;
+data out.l4(label=父子表核查fpd);set final_fpd1;run;
 
 

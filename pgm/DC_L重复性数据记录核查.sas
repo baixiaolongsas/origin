@@ -78,7 +78,7 @@ data final1;
 	label warning="提醒";
 run;
 
-data out.L18(label=AE重复性数据核查); set final1; run;
+data out.L1(label=AE重复性数据核查); set final1; run;
 
 /**********CM页中名称一致，日期重叠************/
 data cm;
@@ -126,7 +126,7 @@ data final2;
 	label warning="提醒";
 run;
 
-data out.L19(label=CM重复性数据核查); set final2; run;
+data out.L2(label=CM重复性数据核查); set final2; run;
 
 /******************实验室检查（包括计划外检查项目表），检查项目、检查日期、检查结果重复性核查*********************/
 
@@ -332,7 +332,7 @@ data final;
   label warning='提醒';
 run;
 
-data out.L20(label=LB重复性数据核查); set final; run;
+data out.L3(label=LB重复性数据核查); set final; run;
  
 
 
